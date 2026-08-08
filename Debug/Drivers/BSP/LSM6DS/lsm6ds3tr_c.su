@@ -1,0 +1,9 @@
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:12:13:LSM6DS3TR_C_CS_Low	8	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:16:13:LSM6DS3TR_C_CS_High	8	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:20:13:LSM6DS3TR_C_WriteReg	24	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:27:16:LSM6DS3TR_C_ReadReg	24	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:37:9:LSM6DS3TR_C_Init	16	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:49:6:LSM6DS3TR_C_Read_Accel	40	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:63:6:LSM6DS3TR_C_Read_Gyro	40	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:76:9:LSM6DS3TR_C_Check_WhoAmI	16	static
+../Drivers/BSP/LSM6DS/lsm6ds3tr_c.c:89:6:LSM6DS3TR_C_Get_RPY	56	static

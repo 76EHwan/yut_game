@@ -1,0 +1,16 @@
+../Drivers/BSP/MCF8316C/mcf8316c.c:10:6:MCF8316C_Read_Faults	16	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:15:6:MCF8316C_WriteReg32	40	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:31:10:MCF8316C_ReadReg32	40	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:47:6:MCF8316C_Config_MPET	16	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:89:6:MCF8316C_Start_MPET	16	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:94:6:MCF8316C_Read_MPET_Results	32	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:109:9:MCF8316C_Check_Connection	8	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:116:6:MCF8316C_Save_To_EEPROM	8	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:121:6:MCF8316C_Restore_Defaults	8	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:148:6:MCF8316C_Emergency_Recovery	56	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:186:6:MCF8316C_Clear_Faults	8	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:191:6:MCF8316C_Set_Speed	24	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:201:9:MCF8316C_Wait_SysEnable	24	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:211:6:MCF8316C_Set_SpeedMode_I2C	16	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:218:9:MCF8316C_Is_NFAULT_Active	8	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:225:9:MCF8316C_WriteAndVerifyReg32	24	static
