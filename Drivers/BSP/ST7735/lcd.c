@@ -119,6 +119,9 @@ uint32_t LCD_GetBrightness(void)
 		return __HAL_TIM_GetCompare(LCD_Brightness_timer, LCD_Brightness_channel);
 }
 
+void LCD_Clear(void) {
+	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,ST7735Ctx.Height, BLACK);
+}
 
 // ��Ļ�𽥱������߱䰵
 // Brightness_Dis: Ŀ��ֵ

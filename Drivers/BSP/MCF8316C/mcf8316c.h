@@ -7,8 +7,8 @@
 
 #include "main.h"
 
-#define MCF8316C_I2C_ADDR_WRITE  0x02
-#define MCF8316C_I2C_ADDR_READ   0x03
+#define MCF8316C_I2C_ADDR_WRITE  (0x02 << 1)
+#define MCF8316C_I2C_ADDR_READ   ((0x02 << 1) | 0x01)
 
 // EEPROM (Non-Volatile) Register Map
 #define REG_ISD_CONFIG			0x0080	// ISD Configration
@@ -2422,15 +2422,9 @@
 // ==========================================
 #define USER_EEPROM_KEY_BASE            (0)
 
-
-
-
-
-
-
-
-
 #define MCF_I2C		(&hi2c4)
+
+extern uint8_t mcf_i2c_addr_8bit;
 
 typedef struct {
 	uint32_t gate_driver_fault;

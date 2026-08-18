@@ -1414,6 +1414,8 @@ static const uint32_t REG_EEPROM_SECURITY_DATA =
 	(0x0 << USER_EEPROM_KEY_BASE);
 // @formatter:on
 
+uint8_t mcf_i2c_addr_8bit = MCF8316C_I2C_ADDR_WRITE; // 초기값
+
 void MCF8316C_Read_Faults(MCF8316C_FaultStatus_t *faults) {
     if (faults == NULL) return;
     faults->gate_driver_fault = MCF8316C_ReadReg32(REG_GATE_DRIVER_FAULT_STATUS);
@@ -1427,28 +1429,13 @@ void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
 	tx_buffer[0] = (ctrl_word >> 16) & 0xFF;
 	tx_buffer[1] = (ctrl_word >> 8) & 0xFF;
 	tx_buffer[2] = ctrl_word & 0xFF;
-
 	tx_buffer[3] = data & 0xFF;
 	tx_buffer[4] = (data >> 8) & 0xFF;
 	tx_buffer[5] = (data >> 16) & 0xFF;
 	tx_buffer[6] = (data >> 24) & 0xFF;
 
-	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, tx_buffer, 7, 100);
-}
-
-uint8_t MCF8316C_WriteAndVerifyReg32(uint32_t reg_addr, uint32_t data) {
-	uint8_t retry = 3;
-	uint32_t read_data = 0;
-	while (retry > 0) {
-		MCF8316C_WriteReg32(reg_addr, data);
-		HAL_Delay(10);
-		read_data = MCF8316C_ReadReg32(reg_addr);
-		if (read_data == data)
-			return 1;
-		retry--;
-		HAL_Delay(10);
-	}
-	return 0;
+    // 매크로 대신 mcf_i2c_addr_8bit 변수 사용
+	HAL_I2C_Master_Transmit(MCF_I2C, mcf_i2c_addr_8bit, tx_buffer, 7, 100);
 }
 
 uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
@@ -1460,21 +1447,12 @@ uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
 	ctrl_buffer[1] = (ctrl_word >> 8) & 0xFF;
 	ctrl_buffer[2] = ctrl_word & 0xFF;
 
-	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, ctrl_buffer, 3, 100);
-	HAL_I2C_Master_Receive(MCF_I2C, MCF8316C_I2C_ADDR_READ, rx_buffer, 4, 100);
+    // 매크로 대신 mcf_i2c_addr_8bit 변수 사용
+	HAL_I2C_Master_Transmit(MCF_I2C, mcf_i2c_addr_8bit, ctrl_buffer, 3, 100);
+	HAL_I2C_Master_Receive(MCF_I2C, mcf_i2c_addr_8bit, rx_buffer, 4, 100);
 
 	return ((uint32_t) rx_buffer[3] << 24) | ((uint32_t) rx_buffer[2] << 16)
 			| ((uint32_t) rx_buffer[1] << 8) | rx_buffer[0];
-}
-
-uint8_t MCF8316C_Check_Connection(void) {
-	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100) == HAL_OK)
-		return 1;
-	return 0;
-}
-
-void MCF8316C_Emergency_Recovery(void) {
-    // 구현 필요 시 작성
 }
 
 void MCF8316C_Config_Manual(void) {
@@ -1497,11 +1475,29 @@ void MCF8316C_Config_Manual(void) {
 	MCF8316C_WriteReg32(REG_INT_ALGO_1, REG_INT_ALGO_1_DATA);
 	MCF8316C_WriteReg32(REG_INT_ALGO_2, REG_INT_ALGO_2_DATA);
 	MCF8316C_WriteReg32(REG_PIN_CONFIG, REG_PIN_CONFIG_DATA);
-	MCF8316C_WriteReg32(REG_DEVICE_CONFIG1, REG_DEVICE_CONFIG1_DATA);
+
+    // ==============================================================
+    // 핵심 버그 수정: DEVICE_CONFIG1을 쓸 때 현재 I2C 주소를 무조건 유지시킴
+    // ==============================================================
+    uint32_t dev_cfg1 = REG_DEVICE_CONFIG1_DATA;
+    dev_cfg1 &= ~(0x7F << I2C_TARGET_ADDR_BASE);                   // 데이터에 적힌 주소값 삭제
+    dev_cfg1 |= ((mcf_i2c_addr_8bit >> 1) << I2C_TARGET_ADDR_BASE); // 스캔된 실제 7-bit 주소 강제 삽입
+	MCF8316C_WriteReg32(REG_DEVICE_CONFIG1, dev_cfg1);
+
 	MCF8316C_WriteReg32(REG_DEVICE_CONFIG2, REG_DEVICE_CONFIG2_DATA);
 	MCF8316C_WriteReg32(REG_PERI_CONFIG1, REG_PERI_CONFIG1_DATA);
 	MCF8316C_WriteReg32(REG_GD_CONFIG1, REG_GD_CONFIG1_DATA);
 	MCF8316C_WriteReg32(REG_GD_CONFIG2, REG_GD_CONFIG2_DATA);
+}
+
+uint8_t MCF8316C_Check_Connection(void) {
+	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100) == HAL_OK)
+		return 1;
+	return 0;
+}
+
+void MCF8316C_Emergency_Recovery(void) {
+    // 구현 필요 시 작성
 }
 
 void MCF8316C_Config_MPET(void) {
