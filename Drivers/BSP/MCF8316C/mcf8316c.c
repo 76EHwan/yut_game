@@ -190,9 +190,9 @@ static const uint32_t REG_REV_DRIVE_CONFIG_DATA =
 // ==========================================
 static const uint32_t REG_MOTOR_STARTUP1_DATA =
 // Motor start-up method
-//	MTR_STARTUP_ALIGN |
+	MTR_STARTUP_ALIGN |
 //	MTR_STARTUP_DOUBLE_ALIGN |
-	MTR_STARTUP_IPD |
+//	MTR_STARTUP_IPD |
 //	MTR_STARTUP_SLOW_FIRST_CYCLE |
 
 // Align, slow first cycle and open loop current ramp rate
@@ -216,11 +216,11 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 // Align time
 //	ALIGN_TIME_10_MS |
 //	ALIGN_TIME_50_MS |
-	ALIGN_TIME_100_MS |
+//	ALIGN_TIME_100_MS |
 //	ALIGN_TIME_200_MS |
 //	ALIGN_TIME_300_MS |
 //	ALIGN_TIME_400_MS |
-//	ALIGN_TIME_500_MS |
+	ALIGN_TIME_500_MS |
 //	ALIGN_TIME_750_MS |
 //	ALIGN_TIME_1_S |
 //	ALIGN_TIME_1P5_S |
@@ -235,9 +235,9 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_0P125_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_0P25_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_0P5_A |
-	ALIGN_OR_SLOW_CURRENT_ILIMIT_1_A |
+//	ALIGN_OR_SLOW_CURRENT_ILIMIT_1_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_1P5_A |
-//	ALIGN_OR_SLOW_CURRENT_ILIMIT_2_A |
+	ALIGN_OR_SLOW_CURRENT_ILIMIT_2_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_2P5_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_3_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_3P5_A |
@@ -263,7 +263,7 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 //	IPD_CURR_THR_0P25_A |
 //	IPD_CURR_THR_0P5_A |
 //	IPD_CURR_THR_0P75_A |
-	IPD_CURR_THR_1_A |
+//	IPD_CURR_THR_1_A |
 //	IPD_CURR_THR_1P25_A |
 //	IPD_CURR_THR_1P5_A |
 //	IPD_CURR_THR_2_A |
@@ -272,7 +272,7 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 //	IPD_CURR_THR_3P667_A |
 //	IPD_CURR_THR_4_A |
 //	IPD_CURR_THR_4P667_A |
-//	IPD_CURR_THR_5_A |
+	IPD_CURR_THR_5_A |
 //	IPD_CURR_THR_5P333_A |
 //	IPD_CURR_THR_6_A |
 //	IPD_CURR_THR_6P667_A |
@@ -319,11 +319,11 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ILIMIT_0P5_A |
 //	OL_ILIMIT_1_A |
 //	OL_ILIMIT_1P5_A |
-	OL_ILIMIT_2_A |
+//	OL_ILIMIT_2_A |
 //	OL_ILIMIT_2P5_A |
 //	OL_ILIMIT_3_A |
 //	OL_ILIMIT_3P5_A |
-//	OL_ILIMIT_4_A |
+	OL_ILIMIT_4_A |
 //	OL_ILIMIT_4P5_A |
 //	OL_ILIMIT_5_A |
 //	OL_ILIMIT_5P5_A |
@@ -335,9 +335,9 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ACC_A1_0P1_HZ_S |
 //	OL_ACC_A1_0P5_HZ_S |
 //	OL_ACC_A1_1_HZ_S |
-//	OL_ACC_A1_2P5_HZ_S |
+	OL_ACC_A1_2P5_HZ_S |
 //	OL_ACC_A1_5_HZ_S |
-	OL_ACC_A1_10_HZ_S |
+//	OL_ACC_A1_10_HZ_S |
 //	OL_ACC_A1_25_HZ_S |
 //	OL_ACC_A1_50_HZ_S |
 //	OL_ACC_A1_75_HZ_S |
@@ -659,9 +659,9 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 //	VOLTAGE_HYSTERESIS_3_V |
 
 // Controller under voltage fault threshold
-//	MIN_VM_MOTOR_NO_LIMIT |
+	MIN_VM_MOTOR_NO_LIMIT |
 //	MIN_VM_MOTOR_6_V |
-	MIN_VM_MOTOR_8_V |
+//	MIN_VM_MOTOR_8_V |
 //	MIN_VM_MOTOR_10_V |
 //	MIN_VM_MOTOR_18_V |
 
@@ -670,8 +670,8 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 //	MIN_VM_MODE_AUTO_CLEAR |
 
 // Controller over voltage fault threshold
-//	MAX_VM_MOTOR_NO_LIMIT |
-	MAX_VM_MOTOR_18_V |
+	MAX_VM_MOTOR_NO_LIMIT |
+//	MAX_VM_MOTOR_18_V |
 //	MAX_VM_MOTOR_18_V |
 //	MAX_VM_MOTOR_30_V |
 //	MAX_VM_MOTOR_34_V |
@@ -953,9 +953,9 @@ static const uint32_t REG_PIN_CONFIG_DATA =
 //	BRAKE_INPUT_OVERRIDE_NO_BRAKE |
 
 // Speed mode
-//	SPEED_MODE_ANALOG |
-	SPEED_MODE_PWM;
-//	SPEED_MODE_I2C |
+//	SPEED_MODE_ANALOG;
+//	SPEED_MODE_PWM;
+	SPEED_MODE_I2C;
 //	SPEED_MODE_FREQ;
 
 
@@ -990,10 +990,10 @@ static const uint32_t REG_DEVICE_CONFIG1_DATA =
 	PULLUP_EN |
 
 // Maximum DC bus voltage
-	BUS_VOLT_15_V;
+//	BUS_VOLT_15_V;
 //	BUS_VOLT_30_V;
 //	BUS_VOLT_40_V;
-//	BUS_VOLT_NOT_APPLI;
+	BUS_VOLT_NOT_APPLI;
 
 
 // ==========================================
@@ -1507,8 +1507,6 @@ void MCF8316C_Config_MPET(void) {
 
 void MCF8316C_Start_MPET(void) {
 	uint32_t algo_debug2_val = REG_ALGO_DEBUG2_DATA;
-	// MPET_CMD, R, L, Ke, MECH 측정 플래그 세트 및 결과 Shadow 반영
-	algo_debug2_val |= MPET_CMD | MPET_R | MPET_L | MPET_KE | MPET_MECH | MPET_WRITE_SHADOW;
 	MCF8316C_WriteReg32(REG_ALGO_DEBUG2, algo_debug2_val);
 }
 
@@ -1542,9 +1540,20 @@ void MCF8316C_Set_Speed(float speed_percent) {
 	if (speed_percent < 0.0f) speed_percent = 0.0f;
 	if (speed_percent > 100.0f) speed_percent = 100.0f;
 
-	uint32_t arr = __HAL_TIM_GET_AUTORELOAD(&htim8);
-	uint32_t ccr = (uint32_t)((speed_percent / 100.0f) * arr);
+	// MCF8316C의 내부 디지털 속도 지령은 15-bit 해상도를 사용합니다. (0 ~ 32767)
+	// 100% = 32767
+	uint32_t speed_cmd = (uint32_t)((speed_percent / 100.0f) * 32767.0f);
 
-	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, ccr);
-	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, ccr);
+	// 1. ALGO_DEBUG1 (0xEC) 레지스터 읽기
+	uint32_t algo_debug1 = MCF8316C_ReadReg32(REG_ALGO_DEBUG1);
+
+	// 2. 기존 속도 지령 비트(30:16) 및 오버라이드 비트(31) 마스킹(초기화)
+	algo_debug1 &= ~((0x7FFF << DIGITAL_SPEED_CTRL_BASE) | (1UL << OVERRIDE_BASE));
+
+	// 3. I2C 속도 오버라이드 활성화 및 새로운 15-bit 속도 지령 삽입
+	algo_debug1 |= OVERRIDE_DIGITAL_SPEED_CTRL;           // Bit 31 Set
+	algo_debug1 |= (speed_cmd << DIGITAL_SPEED_CTRL_BASE); // Bit 30:16 Set
+
+	// 4. 레지스터 업데이트
+	MCF8316C_WriteReg32(REG_ALGO_DEBUG1, algo_debug1);
 }

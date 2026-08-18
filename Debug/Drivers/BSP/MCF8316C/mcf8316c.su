@@ -6,6 +6,6 @@
 ../Drivers/BSP/MCF8316C/mcf8316c.c:1499:6:MCF8316C_Emergency_Recovery	4	static
 ../Drivers/BSP/MCF8316C/mcf8316c.c:1503:6:MCF8316C_Config_MPET	8	static
 ../Drivers/BSP/MCF8316C/mcf8316c.c:1508:6:MCF8316C_Start_MPET	16	static
-../Drivers/BSP/MCF8316C/mcf8316c.c:1515:6:MCF8316C_Read_MPET_Results	32	static
-../Drivers/BSP/MCF8316C/mcf8316c.c:1532:6:MCF8316C_Clear_Faults	16	static
-../Drivers/BSP/MCF8316C/mcf8316c.c:1541:6:MCF8316C_Set_Speed	24	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:1513:6:MCF8316C_Read_MPET_Results	32	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:1530:6:MCF8316C_Clear_Faults	16	static
+../Drivers/BSP/MCF8316C/mcf8316c.c:1539:6:MCF8316C_Set_Speed	24	static
