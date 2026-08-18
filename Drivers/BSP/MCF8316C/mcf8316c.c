@@ -974,7 +974,7 @@ static const uint32_t REG_DEVICE_CONFIG1_DATA =
 //	PWM_DITHER_MODE_RANDOM |
 
 // I2C target address
-	(0x60 << I2C_TARGET_ADDR_BASE) |
+	(0x02 << I2C_TARGET_ADDR_BASE) |
 
 // EEPROM lock key
 	(0x0 << EEPROM_LOCK_KEY_BASE) |
@@ -1415,7 +1415,9 @@ static const uint32_t REG_EEPROM_SECURITY_DATA =
 // @formatter:on
 
 void MCF8316C_Read_Faults(MCF8316C_FaultStatus_t *faults) {
-
+    if (faults == NULL) return;
+    faults->gate_driver_fault = MCF8316C_ReadReg32(REG_GATE_DRIVER_FAULT_STATUS);
+    faults->controller_fault  = MCF8316C_ReadReg32(REG_CONTROLLER_FAULT_STATUS);
 }
 
 void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
@@ -1431,8 +1433,7 @@ void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
 	tx_buffer[5] = (data >> 16) & 0xFF;
 	tx_buffer[6] = (data >> 24) & 0xFF;
 
-	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, tx_buffer, 7,
-			100);
+	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, tx_buffer, 7, 100);
 }
 
 uint8_t MCF8316C_WriteAndVerifyReg32(uint32_t reg_addr, uint32_t data) {
@@ -1459,8 +1460,7 @@ uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
 	ctrl_buffer[1] = (ctrl_word >> 8) & 0xFF;
 	ctrl_buffer[2] = ctrl_word & 0xFF;
 
-	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, ctrl_buffer, 3,
-			100);
+	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, ctrl_buffer, 3, 100);
 	HAL_I2C_Master_Receive(MCF_I2C, MCF8316C_I2C_ADDR_READ, rx_buffer, 4, 100);
 
 	return ((uint32_t) rx_buffer[3] << 24) | ((uint32_t) rx_buffer[2] << 16)
@@ -1468,41 +1468,16 @@ uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
 }
 
 uint8_t MCF8316C_Check_Connection(void) {
-	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100)
-			== HAL_OK)
+	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100) == HAL_OK)
 		return 1;
 	return 0;
 }
 
-void MCF8316C_Clear_Faults(void) {
-    // REG_ALGO_CTRL1 (0x00EA) 레지스터 읽기
-    uint32_t val = MCF8316C_ReadReg32(REG_ALGO_CTRL1);
-
-    // CLR_FLT(비트 29) 및 CLR_FLT_RETRY_COUNT(비트 28) 세트
-    val |= (1 << 29) | (1 << 28);
-
-    // 레지스터 쓰기를 통한 Fault 및 Retry 카운트 초기화
-    MCF8316C_WriteReg32(REG_ALGO_CTRL1, val);
-}
-
-void MCF8316C_Set_Speed(float speed_percent) {
-    // 퍼센트 값 클램핑 (0% ~ 100%)
-    if (speed_percent < 0.0f) speed_percent = 0.0f;
-    if (speed_percent > 100.0f) speed_percent = 100.0f;
-
-    // 설정된 PWM 주기에 해당하는 ARR 값 읽기
-    uint32_t arr_val = __HAL_TIM_GET_AUTORELOAD(&htim8);
-
-    // 퍼센트를 Duty 카운트로 변환
-    uint32_t ccr_val = (uint32_t)((speed_percent / 100.0f) * arr_val);
-
-    // TIM8 CH1, CH2에 PWM Duty 적용
-    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, ccr_val);
-    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, ccr_val);
+void MCF8316C_Emergency_Recovery(void) {
+    // 구현 필요 시 작성
 }
 
 void MCF8316C_Config_Manual(void) {
-	// Shadow Register에 모든 초기 설정값 기록
 	MCF8316C_WriteReg32(REG_ISD_CONFIG, REG_ISD_CONFIG_DATA);
 	MCF8316C_WriteReg32(REG_REV_DRIVE_CONFIG, REG_REV_DRIVE_CONFIG_DATA);
 	MCF8316C_WriteReg32(REG_MOTOR_STARTUP1, REG_MOTOR_STARTUP1_DATA);
@@ -1530,37 +1505,50 @@ void MCF8316C_Config_Manual(void) {
 }
 
 void MCF8316C_Config_MPET(void) {
-	// CLOSED_LOOP 2,3,4 레지스터의 SELF_MEASUREMENT 비트가 이미
-	// 매크로(DATA)에 포함되어 있으므로 Manual 설정 함수를 그대로 호출하면 준비 완료됩니다.
+	// 매크로상에 MPET 측정을 위한 플래그가 포함되어 있으므로 Manual Config 호출
 	MCF8316C_Config_Manual();
 }
 
 void MCF8316C_Start_MPET(void) {
-	// ALGO_DEBUG2(0xEE) 레지스터를 통해 MPET 측정 항목 모두 켜기 및 실행 트리거
 	uint32_t algo_debug2_val = REG_ALGO_DEBUG2_DATA;
-
-	// MPET_CMD(시작) + 저항(R) + 인덕턴스(L) + 역기전력(KE) + 기계상수(MECH) + Shadow Write 옵션 활성화
+	// MPET_CMD, R, L, Ke, MECH 측정 플래그 세트 및 결과 Shadow 반영
 	algo_debug2_val |= MPET_CMD | MPET_R | MPET_L | MPET_KE | MPET_MECH | MPET_WRITE_SHADOW;
-
 	MCF8316C_WriteReg32(REG_ALGO_DEBUG2, algo_debug2_val);
 }
 
 void MCF8316C_Read_MPET_Results(MCF8316C_MotorParams_t *params) {
 	if(params == NULL) return;
 
-	// 1. 모터 R, L, Ke 파라미터 읽기 (REG_MTR_PARAMS: 0x00E6)
 	uint32_t mtr_params = MCF8316C_ReadReg32(REG_MTR_PARAMS);
 	params->resistance_hex = (mtr_params >> 24) & 0xFF;
 	params->bemf_const_hex = (mtr_params >> 16) & 0xFF;
 	params->inductance_hex = (mtr_params >> 8) & 0xFF;
 
-	// 2. 전류 제어 PI 게인 읽기 (REG_CURRENT_PI: 0x00F0)
 	uint32_t curr_pi = MCF8316C_ReadReg32(REG_CURRENT_PI);
 	params->curr_loop_ki = (curr_pi >> 16) & 0xFFFF;
 	params->curr_loop_kp = curr_pi & 0xFFFF;
 
-	// 3. 속도 제어 PI 게인 읽기 (REG_SPEED_PI: 0x00F2)
 	uint32_t spd_pi = MCF8316C_ReadReg32(REG_SPEED_PI);
 	params->spd_loop_ki = (spd_pi >> 16) & 0xFFFF;
 	params->spd_loop_kp = spd_pi & 0xFFFF;
+}
+
+void MCF8316C_Clear_Faults(void) {
+	uint32_t val = MCF8316C_ReadReg32(REG_ALGO_CTRL1);
+	// 29번 비트: CLR_FLT, 28번 비트: CLR_FLT_RETRY_COUNT
+	val |= (1 << 29) | (1 << 28);
+	MCF8316C_WriteReg32(REG_ALGO_CTRL1, val);
+}
+
+extern TIM_HandleTypeDef htim8;
+
+void MCF8316C_Set_Speed(float speed_percent) {
+	if (speed_percent < 0.0f) speed_percent = 0.0f;
+	if (speed_percent > 100.0f) speed_percent = 100.0f;
+
+	uint32_t arr = __HAL_TIM_GET_AUTORELOAD(&htim8);
+	uint32_t ccr = (uint32_t)((speed_percent / 100.0f) * arr);
+
+	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, ccr);
+	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, ccr);
 }

@@ -99,12 +99,12 @@ void LCD_Test(void)
 
 	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,ST7735Ctx.Height, BLACK);
 
-	sprintf((char *)&text, "WeAct Studio");
-	LCD_ShowString(4, 4, ST7735Ctx.Width, 16, 16, text);
-	sprintf((char *)&text, "STM32H7xx 0x%X", HAL_GetDEVID());
-	LCD_ShowString(4, 22, ST7735Ctx.Width, 16, 16, text);
-	sprintf((char *)&text, "LCD ID:0x%X", st7735_id);
-	LCD_ShowString(4, 40, ST7735Ctx.Width, 16, 16, text);
+//	sprintf((char *)&text, "WeAct Studio");
+//	LCD_ShowString(4, 4, ST7735Ctx.Width, 16, 16, text);
+//	sprintf((char *)&text, "STM32H7xx 0x%X", HAL_GetDEVID());
+//	LCD_ShowString(4, 22, ST7735Ctx.Width, 16, 16, text);
+//	sprintf((char *)&text, "LCD ID:0x%X", st7735_id);
+//	LCD_ShowString(4, 40, ST7735Ctx.Width, 16, 16, text);
 
 	LCD_Light(100, 200);
 }
