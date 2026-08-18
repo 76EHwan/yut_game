@@ -535,7 +535,7 @@ static const uint32_t REG_CLOSED_LOOP4_DATA =
 
 // Maximum motor electrical speed (Hz): {MAX_SPEED/6}
 // ex: 1000Hz -> (1000 * 6) = 6000
-	(6000 << MAX_SPEED_BASE);
+	(7000 << MAX_SPEED_BASE);
 
 
 // ==========================================
@@ -660,7 +660,8 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 // Controller under voltage fault threshold
 //	MIN_VM_MOTOR_NO_LIMIT |
 //	MIN_VM_MOTOR_6_V |
-	MIN_VM_MOTOR_10_V |
+	MIN_VM_MOTOR_8_V |
+//	MIN_VM_MOTOR_10_V |
 //	MIN_VM_MOTOR_18_V |
 
 // DC bus (controller) undervoltage fault recovery mode
@@ -669,8 +670,9 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 
 // Controller over voltage fault threshold
 //	MAX_VM_MOTOR_NO_LIMIT |
+	MAX_VM_MOTOR_18_V |
 //	MAX_VM_MOTOR_18_V |
-	MAX_VM_MOTOR_30_V |
+//	MAX_VM_MOTOR_30_V |
 //	MAX_VM_MOTOR_34_V |
 
 // DC bus (controller) overvoltage fault recovery mode
@@ -987,9 +989,9 @@ static const uint32_t REG_DEVICE_CONFIG1_DATA =
 	PULLUP_EN |
 
 // Maximum DC bus voltage
-//	BUS_VOLT_15_V |
-	BUS_VOLT_30_V;
-//	BUS_VOLT_40_V |
+	BUS_VOLT_15_V;
+//	BUS_VOLT_30_V;
+//	BUS_VOLT_40_V;
 //	BUS_VOLT_NOT_APPLI;
 
 
@@ -1160,8 +1162,8 @@ static const uint32_t REG_GD_CONFIG1_DATA =
 	SLEW_RATE_200_V_US |
 
 // Overvoltage level
-	OVP_SEL_34_V |
-//	OVP_SEL_22_V |
+//	OVP_SEL_34_V |
+	OVP_SEL_22_V |
 
 // Overvoltage protection enable
 //	OVP_DIS |
@@ -1321,27 +1323,28 @@ static const uint32_t REG_ALGO_DEBUG2_DATA =
 	(0x0 << FORCE_VQ_CURRENT_LOOP_DIS_BASE) |
 
 // MPET command
-	(0x0 << MPET_CMD_BASE) |
+//	(0x0 << MPET_CMD_BASE) |
+	MPET_CMD|
 
 // MPET resistance measurement
-	(0x0 << MPET_R_BASE) |
-//	MPET_R |
+//	(0x0 << MPET_R_BASE) |
+	MPET_R |
 
 // MPET inductance measurement
-	(0x0 << MPET_L_BASE) |
-//	MPET_L |
+//	(0x0 << MPET_L_BASE) |
+	MPET_L |
 
 // MPET BEMF constant measurement
-	(0x0 << MPET_KE_BASE) |
-//	MPET_KE |
+//	(0x0 << MPET_KE_BASE) |
+	MPET_KE |
 
 // MPET mechanical parameter measurement
-	(0x0 << MPET_MECH_BASE) |
-//	MPET_MECH |
+//	(0x0 << MPET_MECH_BASE) |
+	MPET_MECH |
 
 // MPET write measured parameters to shadow
-	(0x0 << MPET_WRITE_SHADOW_BASE);
-//	MPET_WRITE_SHADOW;
+//	(0x0 << MPET_WRITE_SHADOW_BASE);
+	MPET_WRITE_SHADOW;
 
 
 // ============================================================================
@@ -1470,10 +1473,6 @@ uint8_t MCF8316C_Check_Connection(void) {
 	return 0;
 }
 
-void MCF8316C_Emergency_Recovery(void) {
-
-}
-
 void MCF8316C_Clear_Faults(void) {
 
 }
@@ -1482,18 +1481,66 @@ void MCF8316C_Set_Speed(float speed_percent) {
 
 }
 
-// 위에서 정의한 매크로 블록을 실제 디바이스에 쓰는 함수
 void MCF8316C_Config_Manual(void) {
-
+	// Shadow Register에 모든 초기 설정값 기록
+	MCF8316C_WriteReg32(REG_ISD_CONFIG, REG_ISD_CONFIG_DATA);
+	MCF8316C_WriteReg32(REG_REV_DRIVE_CONFIG, REG_REV_DRIVE_CONFIG_DATA);
+	MCF8316C_WriteReg32(REG_MOTOR_STARTUP1, REG_MOTOR_STARTUP1_DATA);
+	MCF8316C_WriteReg32(REG_MOTOR_STARTUP2, REG_MOTOR_STARTUP2_DATA);
+	MCF8316C_WriteReg32(REG_CLOSED_LOOP1, REG_CLOSED_LOOP1_DATA);
+	MCF8316C_WriteReg32(REG_CLOSED_LOOP2, REG_CLOSED_LOOP2_DATA);
+	MCF8316C_WriteReg32(REG_CLOSED_LOOP3, REG_CLOSED_LOOP3_DATA);
+	MCF8316C_WriteReg32(REG_CLOSED_LOOP4, REG_CLOSED_LOOP4_DATA);
+	MCF8316C_WriteReg32(REG_FAULT_CONFIG1, REG_FAULT_CONFIG1_DATA);
+	MCF8316C_WriteReg32(REG_FAULT_CONFIG2, REG_FAULT_CONFIG2_DATA);
+	MCF8316C_WriteReg32(REG_REF_PROFILES1, REG_REF_PROFILES1_DATA);
+	MCF8316C_WriteReg32(REG_REF_PROFILES2, REG_REF_PROFILES2_DATA);
+	MCF8316C_WriteReg32(REG_REF_PROFILES3, REG_REF_PROFILES3_DATA);
+	MCF8316C_WriteReg32(REG_REF_PROFILES4, REG_REF_PROFILES4_DATA);
+	MCF8316C_WriteReg32(REG_REF_PROFILES5, REG_REF_PROFILES5_DATA);
+	MCF8316C_WriteReg32(REG_REF_PROFILES6, REG_REF_PROFILES6_DATA);
+	MCF8316C_WriteReg32(REG_INT_ALGO_1, REG_INT_ALGO_1_DATA);
+	MCF8316C_WriteReg32(REG_INT_ALGO_2, REG_INT_ALGO_2_DATA);
+	MCF8316C_WriteReg32(REG_PIN_CONFIG, REG_PIN_CONFIG_DATA);
+	MCF8316C_WriteReg32(REG_DEVICE_CONFIG1, REG_DEVICE_CONFIG1_DATA);
+	MCF8316C_WriteReg32(REG_DEVICE_CONFIG2, REG_DEVICE_CONFIG2_DATA);
+	MCF8316C_WriteReg32(REG_PERI_CONFIG1, REG_PERI_CONFIG1_DATA);
+	MCF8316C_WriteReg32(REG_GD_CONFIG1, REG_GD_CONFIG1_DATA);
+	MCF8316C_WriteReg32(REG_GD_CONFIG2, REG_GD_CONFIG2_DATA);
 }
-// 아래의 비어있는 함수들은 헤더 에러 방지용입니다.
+
 void MCF8316C_Config_MPET(void) {
+	// CLOSED_LOOP 2,3,4 레지스터의 SELF_MEASUREMENT 비트가 이미
+	// 매크로(DATA)에 포함되어 있으므로 Manual 설정 함수를 그대로 호출하면 준비 완료됩니다.
+	MCF8316C_Config_Manual();
 }
 
 void MCF8316C_Start_MPET(void) {
+	// ALGO_DEBUG2(0xEE) 레지스터를 통해 MPET 측정 항목 모두 켜기 및 실행 트리거
+	uint32_t algo_debug2_val = REG_ALGO_DEBUG2_DATA;
 
+	// MPET_CMD(시작) + 저항(R) + 인덕턴스(L) + 역기전력(KE) + 기계상수(MECH) + Shadow Write 옵션 활성화
+	algo_debug2_val |= MPET_CMD | MPET_R | MPET_L | MPET_KE | MPET_MECH | MPET_WRITE_SHADOW;
+
+	MCF8316C_WriteReg32(REG_ALGO_DEBUG2, algo_debug2_val);
 }
 
 void MCF8316C_Read_MPET_Results(MCF8316C_MotorParams_t *params) {
+	if(params == NULL) return;
 
+	// 1. 모터 R, L, Ke 파라미터 읽기 (REG_MTR_PARAMS: 0x00E6)
+	uint32_t mtr_params = MCF8316C_ReadReg32(REG_MTR_PARAMS);
+	params->resistance_hex = (mtr_params >> 24) & 0xFF;
+	params->bemf_const_hex = (mtr_params >> 16) & 0xFF;
+	params->inductance_hex = (mtr_params >> 8) & 0xFF;
+
+	// 2. 전류 제어 PI 게인 읽기 (REG_CURRENT_PI: 0x00F0)
+	uint32_t curr_pi = MCF8316C_ReadReg32(REG_CURRENT_PI);
+	params->curr_loop_ki = (curr_pi >> 16) & 0xFFFF;
+	params->curr_loop_kp = curr_pi & 0xFFFF;
+
+	// 3. 속도 제어 PI 게인 읽기 (REG_SPEED_PI: 0x00F2)
+	uint32_t spd_pi = MCF8316C_ReadReg32(REG_SPEED_PI);
+	params->spd_loop_ki = (spd_pi >> 16) & 0xFFFF;
+	params->spd_loop_kp = spd_pi & 0xFFFF;
 }
