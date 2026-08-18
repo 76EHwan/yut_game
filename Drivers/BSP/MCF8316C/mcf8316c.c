@@ -4,6 +4,7 @@
 
 #include "mcf8316c.h"
 #include "i2c.h"
+#include "tim.h"
 
 // @formatter:off
 // ==========================================
@@ -1474,11 +1475,30 @@ uint8_t MCF8316C_Check_Connection(void) {
 }
 
 void MCF8316C_Clear_Faults(void) {
+    // REG_ALGO_CTRL1 (0x00EA) 레지스터 읽기
+    uint32_t val = MCF8316C_ReadReg32(REG_ALGO_CTRL1);
 
+    // CLR_FLT(비트 29) 및 CLR_FLT_RETRY_COUNT(비트 28) 세트
+    val |= (1 << 29) | (1 << 28);
+
+    // 레지스터 쓰기를 통한 Fault 및 Retry 카운트 초기화
+    MCF8316C_WriteReg32(REG_ALGO_CTRL1, val);
 }
 
 void MCF8316C_Set_Speed(float speed_percent) {
+    // 퍼센트 값 클램핑 (0% ~ 100%)
+    if (speed_percent < 0.0f) speed_percent = 0.0f;
+    if (speed_percent > 100.0f) speed_percent = 100.0f;
 
+    // 설정된 PWM 주기에 해당하는 ARR 값 읽기
+    uint32_t arr_val = __HAL_TIM_GET_AUTORELOAD(&htim8);
+
+    // 퍼센트를 Duty 카운트로 변환
+    uint32_t ccr_val = (uint32_t)((speed_percent / 100.0f) * arr_val);
+
+    // TIM8 CH1, CH2에 PWM Duty 적용
+    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, ccr_val);
+    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, ccr_val);
 }
 
 void MCF8316C_Config_Manual(void) {
