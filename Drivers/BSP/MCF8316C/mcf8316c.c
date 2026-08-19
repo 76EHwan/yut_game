@@ -190,9 +190,9 @@ static const uint32_t REG_REV_DRIVE_CONFIG_DATA =
 // ==========================================
 static const uint32_t REG_MOTOR_STARTUP1_DATA =
 // Motor start-up method
-	MTR_STARTUP_ALIGN |
+//	MTR_STARTUP_ALIGN |
 //	MTR_STARTUP_DOUBLE_ALIGN |
-//	MTR_STARTUP_IPD |
+	MTR_STARTUP_IPD |
 //	MTR_STARTUP_SLOW_FIRST_CYCLE |
 
 // Align, slow first cycle and open loop current ramp rate
@@ -321,9 +321,9 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ILIMIT_1P5_A |
 //	OL_ILIMIT_2_A |
 //	OL_ILIMIT_2P5_A |
-//	OL_ILIMIT_3_A |
+	OL_ILIMIT_3_A |
 //	OL_ILIMIT_3P5_A |
-	OL_ILIMIT_4_A |
+//	OL_ILIMIT_4_A |
 //	OL_ILIMIT_4P5_A |
 //	OL_ILIMIT_5_A |
 //	OL_ILIMIT_5P5_A |
@@ -335,11 +335,11 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ACC_A1_0P1_HZ_S |
 //	OL_ACC_A1_0P5_HZ_S |
 //	OL_ACC_A1_1_HZ_S |
-	OL_ACC_A1_2P5_HZ_S |
+//	OL_ACC_A1_2P5_HZ_S |
 //	OL_ACC_A1_5_HZ_S |
 //	OL_ACC_A1_10_HZ_S |
 //	OL_ACC_A1_25_HZ_S |
-//	OL_ACC_A1_50_HZ_S |
+	OL_ACC_A1_50_HZ_S |
 //	OL_ACC_A1_75_HZ_S |
 //	OL_ACC_A1_100_HZ_S |
 //	OL_ACC_A1_250_HZ_S |
@@ -374,8 +374,8 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 // Open to closed loop handoff threshold (% of MAX_SPEED)
 //	OPN_CL_HANDOFF_THR_1_PER |
 //	OPN_CL_HANDOFF_THR_5_PER |
-	OPN_CL_HANDOFF_THR_10_PER |
-//	OPN_CL_HANDOFF_THR_20_PER |
+//	OPN_CL_HANDOFF_THR_10_PER |
+	OPN_CL_HANDOFF_THR_20_PER |
 //	OPN_CL_HANDOFF_THR_30_PER |
 //	OPN_CL_HANDOFF_THR_40_PER |
 //	OPN_CL_HANDOFF_THR_50_PER |
@@ -388,13 +388,14 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 
 // Frequency of first cycle in open loop start-up
 //	SLOW_FIRST_CYCLE_FREQ_0P1_PER |
-	SLOW_FIRST_CYCLE_FREQ_1_PER |
+//	SLOW_FIRST_CYCLE_FREQ_1_PER |
+	SLOW_FIRST_CYCLE_FREQ_2P5_PER |
 //	SLOW_FIRST_CYCLE_FREQ_10_PER |
 //	SLOW_FIRST_CYCLE_FREQ_25_PER |
 
 // First cycle frequency in open loop for align, double align and IPD
-	FIRST_CYCLE_FREQ_SEL_0_HZ |
-//	FIRST_CYCLE_FREQ_SEL_SLOW_FIRST_CYC_FREQ |
+//	FIRST_CYCLE_FREQ_SEL_0_HZ |
+	FIRST_CYCLE_FREQ_SEL_SLOW_FIRST_CYC_FREQ |
 
 // Ramp rate for reducing difference between estimated theta and open loop theta
 //	THETA_ERROR_RAMP_RATE_0P01_DEG_MS |
@@ -413,14 +414,14 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 
 // Closed loop acceleration
 //	CL_ACC_10 |
-//	CL_ACC_100 |
-	CL_ACC_500 |
+	CL_ACC_100 |
+//	CL_ACC_500 |
 //	CL_ACC_NO_LIMIT |
 
 // Closed loop deceleration
 //	CL_DEC_10 |
-//	CL_DEC_100 |
-	CL_DEC_500 |
+	CL_DEC_100 |
+//	CL_DEC_500 |
 //	CL_DEC_NO_LIMIT |
 
 // PWM output frequency
@@ -536,7 +537,7 @@ static const uint32_t REG_CLOSED_LOOP4_DATA =
 
 // Maximum motor electrical speed (Hz): {MAX_SPEED/6}
 // ex: 1000Hz -> (1000 * 6) = 6000
-	(7000 << MAX_SPEED_BASE);
+	(10000 << MAX_SPEED_BASE);
 
 
 // ==========================================
@@ -628,12 +629,12 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 
 // Abnormal speed lock threshold (% of MAX_SPEED)
 //	LOCK_ABN_SPEED_130_PER |
-	LOCK_ABN_SPEED_150_PER |
-//	LOCK_ABN_SPEED_200_PER |
+//	LOCK_ABN_SPEED_150_PER |
+	LOCK_ABN_SPEED_200_PER |
 
 // Abnormal BEMF lock threshold (% of expected BEMF)
-//	ABNORMAL_BEMF_THR_40_PER |
-	ABNORMAL_BEMF_THR_50_PER |
+	ABNORMAL_BEMF_THR_40_PER |
+//	ABNORMAL_BEMF_THR_50_PER |
 //	ABNORMAL_BEMF_THR_70_PER |
 
 // No motor lock threshold
@@ -790,8 +791,8 @@ static const uint32_t REG_INT_ALGO_1_DATA =
 //	ISD_TIMEOUT_2000_MS |
 
 // Auto handoff minimum BEMF
-//	AUTO_HANDOFF_MIN_BEMF_0_MV |
-	AUTO_HANDOFF_MIN_BEMF_50_MV |
+	AUTO_HANDOFF_MIN_BEMF_0_MV |
+//	AUTO_HANDOFF_MIN_BEMF_50_MV |
 //	AUTO_HANDOFF_MIN_BEMF_100_MV |
 //	AUTO_HANDOFF_MIN_BEMF_250_MV |
 //	AUTO_HANDOFF_MIN_BEMF_500_MV |
