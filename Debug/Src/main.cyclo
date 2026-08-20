@@ -1,5 +1,5 @@
 ../Src/main.c:53:6:ExitRun0Mode	1
 ../Src/main.c:56:13:LED_Blink	1
-../Src/main.c:68:5:main	8
-../Src/main.c:265:6:SystemClock_Config	4
-../Src/main.c:325:6:Error_Handler	1
+../Src/main.c:69:5:main	9
+../Src/main.c:214:6:SystemClock_Config	4
+../Src/main.c:274:6:Error_Handler	1

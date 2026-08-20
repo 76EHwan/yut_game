@@ -301,8 +301,8 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 	IQ_RAMP_DOWN_EN |
 
 // Enable active braking
-//	ACTIVE_BRAKE_DIS |
-	ACTIVE_BRAKE_EN |
+	ACTIVE_BRAKE_DIS |
+//	ACTIVE_BRAKE_EN |
 
 // Choose between forward and reverse drive setting for reverse drive
 	REV_DRV_CONFIG_FORWARD;
@@ -350,11 +350,11 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ACC_A1_10000_HZ_S |
 
 // Open loop acceleration coefficient A2
-	OL_ACC_A2_0P0_HZ_S2 |
+//	OL_ACC_A2_0P0_HZ_S2 |
 //	OL_ACC_A2_0P5_HZ_S2 |
 //	OL_ACC_A2_1_HZ_S2 |
 //	OL_ACC_A2_2P5_HZ_S2 |
-//	OL_ACC_A2_5_HZ_S2 |
+	OL_ACC_A2_5_HZ_S2 |
 //	OL_ACC_A2_10_HZ_S2 |
 //	OL_ACC_A2_25_HZ_S2 |
 //	OL_ACC_A2_50_HZ_S2 |
@@ -374,8 +374,8 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 // Open to closed loop handoff threshold (% of MAX_SPEED)
 //	OPN_CL_HANDOFF_THR_1_PER |
 //	OPN_CL_HANDOFF_THR_5_PER |
-//	OPN_CL_HANDOFF_THR_10_PER |
-	OPN_CL_HANDOFF_THR_20_PER |
+	OPN_CL_HANDOFF_THR_10_PER |
+//	OPN_CL_HANDOFF_THR_20_PER |
 //	OPN_CL_HANDOFF_THR_30_PER |
 //	OPN_CL_HANDOFF_THR_40_PER |
 //	OPN_CL_HANDOFF_THR_50_PER |
@@ -413,15 +413,72 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 //	OVERMODULATION_EN |
 
 // Closed loop acceleration
+//	CL_ACC_0P5 |
+//	CL_ACC_1 |
+//	CL_ACC_2P5 |
+//	CL_ACC_5 |
+//	CL_ACC_7P5 |
 //	CL_ACC_10 |
-	CL_ACC_100 |
+//	CL_ACC_20 |
+//	CL_ACC_40 |
+//	CL_ACC_60 |
+//	CL_ACC_80 |
+//	CL_ACC_100 |
+//	CL_ACC_200 |
+//	CL_ACC_300 |
+//	CL_ACC_400 |
 //	CL_ACC_500 |
+//	CL_ACC_600 |
+//	CL_ACC_700 |
+//	CL_ACC_800 |
+//	CL_ACC_900 |
+	CL_ACC_1000 |
+//	CL_ACC_2000 |
+//	CL_ACC_4000 |
+//	CL_ACC_6000 |
+//	CL_ACC_8000 |
+//	CL_ACC_10000 |
+//	CL_ACC_20000 |
+//	CL_ACC_30000 |
+//	CL_ACC_40000 |
+//	CL_ACC_50000 |
+//	CL_ACC_60000 |
+//	CL_ACC_70000 |
+
 //	CL_ACC_NO_LIMIT |
 
 // Closed loop deceleration
+//	CL_DEC_0P5 |
+//	CL_DEC_1 |
+//	CL_DEC_2P5 |
+//	CL_DEC_5 |
+//	CL_DEC_7P5 |
 //	CL_DEC_10 |
-	CL_DEC_100 |
+//	CL_DEC_20 |
+//	CL_DEC_40 |
+//	CL_DEC_60 |
+//	CL_DEC_80 |
+//	CL_DEC_100 |
+//	CL_DEC_200 |
+//	CL_DEC_300 |
+//	CL_DEC_400 |
 //	CL_DEC_500 |
+//	CL_DEC_600 |
+//	CL_DEC_700 |
+//	CL_DEC_800 |
+//	CL_DEC_900 |
+	CL_DEC_1000 |
+//	CL_DEC_2000 |
+//	CL_DEC_4000 |
+//	CL_DEC_6000 |
+//	CL_DEC_8000 |
+//	CL_DEC_10000 |
+//	CL_DEC_20000 |
+//	CL_DEC_30000 |
+//	CL_DEC_40000 |
+//	CL_DEC_50000 |
+//	CL_DEC_60000 |
+//	CL_DEC_70000 |
 //	CL_DEC_NO_LIMIT |
 
 // PWM output frequency
@@ -471,8 +528,8 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 // ==========================================
 static const uint32_t REG_CLOSED_LOOP2_DATA =
 // Motor stop mode
-//	MTR_STOP_HI_Z |
-	MTR_STOP_RECIRCULATION_STOP |
+	MTR_STOP_HI_Z |
+//	MTR_STOP_RECIRCULATION_STOP |
 //	MTR_STOP_LOW_SIDE_BRAKING |
 //	MTR_STOP_HIGH_SIDE_BRAKING |
 //	MTR_STOP_ACTIVE_SPIN_DOWN |
@@ -497,14 +554,12 @@ static const uint32_t REG_CLOSED_LOOP2_DATA =
 //	BRAKE_SPEED_THRESHOLD_2P5_PER |
 
 // 8-bit values for motor phase resistance (MPET 자동 측정)
-	MOTOR_RES_SELF_MEASUREMENT |
-//	MOTOR_RES_0P010_OHM |
-//	MOTOR_RES_1P00_OHM |
+//	MOTOR_RES_SELF_MEASUREMENT |
+	MOTOR_RES_0P160_OHM |
 
 // 8-bit values for motor phase inductance (MPET 자동 측정)
-	MOTOR_IND_SELF_MEASUREMENT;
-//	MOTOR_IND_0P010_MH |
-//	MOTOR_IND_1P00_MH;
+//	MOTOR_IND_SELF_MEASUREMENT;
+	MOTOR_IND_0P022_MH;
 
 
 // ==========================================
@@ -512,17 +567,17 @@ static const uint32_t REG_CLOSED_LOOP2_DATA =
 // ==========================================
 static const uint32_t REG_CLOSED_LOOP3_DATA =
 // 8-bit values for motor BEMF Constant (MPET 자동 측정)
-	MOTOR_BEMF_CONST_SELF_MEASUREMENT |
-//	MOTOR_BEMF_CONST_1P0_MV_HZ |
+//	MOTOR_BEMF_CONST_SELF_MEASUREMENT |
+	MOTOR_BEMF_CONST_3P4_MV_HZ |
 
 // 10-bit value for current Iq and Id loop Kp (MPET 자동 계산)
-	(0x0 << CURR_LOOP_KP_BASE) |
+	(0x3ab << CURR_LOOP_KP_BASE) |
 
 // 10-bit value for current Iq and Id loop Ki (MPET 자동 계산)
-	(0x0 << CURR_LOOP_KI_BASE) |
+	(0x27c << CURR_LOOP_KI_BASE) |
 
 // 3 MSB bits for speed loop Kp (MPET 자동 계산)
-	(0x0 << SPD_LOOP_KP_MSB_BASE);
+	(0x4 << SPD_LOOP_KP_MSB_BASE);
 
 
 // ==========================================
@@ -530,14 +585,14 @@ static const uint32_t REG_CLOSED_LOOP3_DATA =
 // ==========================================
 static const uint32_t REG_CLOSED_LOOP4_DATA =
 // 7 LSB bits for speed loop Kp (MPET 자동 계산)
-	(0x0 << SPD_LOOP_KP_LSB_BASE) |
+	(0x1b << SPD_LOOP_KP_LSB_BASE) |
 
 // 10-bit value for speed loop Ki (MPET 자동 계산)
-	(0x0 << SPD_LOOP_KI_BASE) |
+	(0x21b << SPD_LOOP_KI_BASE) |
 
 // Maximum motor electrical speed (Hz): {MAX_SPEED/6}
 // ex: 1000Hz -> (1000 * 6) = 6000
-	(10000 << MAX_SPEED_BASE);
+	(6000 << MAX_SPEED_BASE);
 
 
 // ==========================================
@@ -837,12 +892,12 @@ static const uint32_t REG_INT_ALGO_2_DATA =
 //	CL_SLOW_ACC_2_HZ_S |
 //	CL_SLOW_ACC_3_HZ_S |
 //	CL_SLOW_ACC_5_HZ_S |
-	CL_SLOW_ACC_10_HZ_S |
+//	CL_SLOW_ACC_10_HZ_S |
 //	CL_SLOW_ACC_20_HZ_S |
 //	CL_SLOW_ACC_30_HZ_S |
 //	CL_SLOW_ACC_40_HZ_S |
 //	CL_SLOW_ACC_50_HZ_S |
-//	CL_SLOW_ACC_100_HZ_S |
+	CL_SLOW_ACC_100_HZ_S |
 //	CL_SLOW_ACC_200_HZ_S |
 //	CL_SLOW_ACC_500_HZ_S |
 //	CL_SLOW_ACC_750_HZ_S |
@@ -1418,9 +1473,11 @@ static const uint32_t REG_EEPROM_SECURITY_DATA =
 uint8_t mcf_i2c_addr_8bit = MCF8316C_I2C_ADDR_WRITE; // 초기값
 
 void MCF8316C_Read_Faults(MCF8316C_FaultStatus_t *faults) {
-    if (faults == NULL) return;
-    faults->gate_driver_fault = MCF8316C_ReadReg32(REG_GATE_DRIVER_FAULT_STATUS);
-    faults->controller_fault  = MCF8316C_ReadReg32(REG_CONTROLLER_FAULT_STATUS);
+	if (faults == NULL)
+		return;
+	faults->gate_driver_fault = MCF8316C_ReadReg32(
+	REG_GATE_DRIVER_FAULT_STATUS);
+	faults->controller_fault = MCF8316C_ReadReg32(REG_CONTROLLER_FAULT_STATUS);
 }
 
 void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
@@ -1435,7 +1492,7 @@ void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
 	tx_buffer[5] = (data >> 16) & 0xFF;
 	tx_buffer[6] = (data >> 24) & 0xFF;
 
-    // 매크로 대신 mcf_i2c_addr_8bit 변수 사용
+	// 매크로 대신 mcf_i2c_addr_8bit 변수 사용
 	HAL_I2C_Master_Transmit(MCF_I2C, mcf_i2c_addr_8bit, tx_buffer, 7, 100);
 }
 
@@ -1448,7 +1505,7 @@ uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
 	ctrl_buffer[1] = (ctrl_word >> 8) & 0xFF;
 	ctrl_buffer[2] = ctrl_word & 0xFF;
 
-    // 매크로 대신 mcf_i2c_addr_8bit 변수 사용
+	// 매크로 대신 mcf_i2c_addr_8bit 변수 사용
 	HAL_I2C_Master_Transmit(MCF_I2C, mcf_i2c_addr_8bit, ctrl_buffer, 3, 100);
 	HAL_I2C_Master_Receive(MCF_I2C, mcf_i2c_addr_8bit, rx_buffer, 4, 100);
 
@@ -1477,12 +1534,12 @@ void MCF8316C_Config_Manual(void) {
 	MCF8316C_WriteReg32(REG_INT_ALGO_2, REG_INT_ALGO_2_DATA);
 	MCF8316C_WriteReg32(REG_PIN_CONFIG, REG_PIN_CONFIG_DATA);
 
-    // ==============================================================
-    // 핵심 버그 수정: DEVICE_CONFIG1을 쓸 때 현재 I2C 주소를 무조건 유지시킴
-    // ==============================================================
-    uint32_t dev_cfg1 = REG_DEVICE_CONFIG1_DATA;
-    dev_cfg1 &= ~(0x7F << I2C_TARGET_ADDR_BASE);                   // 데이터에 적힌 주소값 삭제
-    dev_cfg1 |= ((mcf_i2c_addr_8bit >> 1) << I2C_TARGET_ADDR_BASE); // 스캔된 실제 7-bit 주소 강제 삽입
+	// ==============================================================
+	// 핵심 버그 수정: DEVICE_CONFIG1을 쓸 때 현재 I2C 주소를 무조건 유지시킴
+	// ==============================================================
+	uint32_t dev_cfg1 = REG_DEVICE_CONFIG1_DATA;
+	dev_cfg1 &= ~(0x7F << I2C_TARGET_ADDR_BASE);               // 데이터에 적힌 주소값 삭제
+	dev_cfg1 |= ((mcf_i2c_addr_8bit >> 1) << I2C_TARGET_ADDR_BASE); // 스캔된 실제 7-bit 주소 강제 삽입
 	MCF8316C_WriteReg32(REG_DEVICE_CONFIG1, dev_cfg1);
 
 	MCF8316C_WriteReg32(REG_DEVICE_CONFIG2, REG_DEVICE_CONFIG2_DATA);
@@ -1492,13 +1549,14 @@ void MCF8316C_Config_Manual(void) {
 }
 
 uint8_t MCF8316C_Check_Connection(void) {
-	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100) == HAL_OK)
+	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100)
+			== HAL_OK)
 		return 1;
 	return 0;
 }
 
 void MCF8316C_Emergency_Recovery(void) {
-    // 구현 필요 시 작성
+	// 구현 필요 시 작성
 }
 
 void MCF8316C_Config_MPET(void) {
@@ -1512,7 +1570,8 @@ void MCF8316C_Start_MPET(void) {
 }
 
 void MCF8316C_Read_MPET_Results(MCF8316C_MotorParams_t *params) {
-	if(params == NULL) return;
+	if (params == NULL)
+		return;
 
 	uint32_t mtr_params = MCF8316C_ReadReg32(REG_MTR_PARAMS);
 	params->resistance_hex = (mtr_params >> 24) & 0xFF;
@@ -1538,18 +1597,21 @@ void MCF8316C_Clear_Faults(void) {
 extern TIM_HandleTypeDef htim8;
 
 void MCF8316C_Set_Speed(float speed_percent) {
-	if (speed_percent < 0.0f) speed_percent = 0.0f;
-	if (speed_percent > 100.0f) speed_percent = 100.0f;
+	if (speed_percent < 0.0f)
+		speed_percent = 0.0f;
+	if (speed_percent > 100.0f)
+		speed_percent = 100.0f;
 
 	// MCF8316C의 내부 디지털 속도 지령은 15-bit 해상도를 사용합니다. (0 ~ 32767)
 	// 100% = 32767
-	uint32_t speed_cmd = (uint32_t)((speed_percent / 100.0f) * 32767.0f);
+	uint32_t speed_cmd = (uint32_t) ((speed_percent / 100.0f) * 32767.0f);
 
 	// 1. ALGO_DEBUG1 (0xEC) 레지스터 읽기
 	uint32_t algo_debug1 = MCF8316C_ReadReg32(REG_ALGO_DEBUG1);
 
 	// 2. 기존 속도 지령 비트(30:16) 및 오버라이드 비트(31) 마스킹(초기화)
-	algo_debug1 &= ~((0x7FFF << DIGITAL_SPEED_CTRL_BASE) | (1UL << OVERRIDE_BASE));
+	algo_debug1 &= ~((0x7FFF << DIGITAL_SPEED_CTRL_BASE)
+			| (1UL << OVERRIDE_BASE));
 
 	// 3. I2C 속도 오버라이드 활성화 및 새로운 15-bit 속도 지령 삽입
 	algo_debug1 |= OVERRIDE_DIGITAL_SPEED_CTRL;           // Bit 31 Set

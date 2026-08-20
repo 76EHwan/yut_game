@@ -166,11 +166,41 @@ int main(void) {
 
 	MCF8316C_Start_MPET();
 
-	// 측정 완료 대기 (약 10초)
-	for (int i = 0; i < 10; i++) {
-		sprintf(lcd_buf, "Wait %d sec  ", 10 - i);
+	// 칩이 MPET를 시작하고 상태를 변경할 시간을 줍니다.
+	HAL_Delay(500);
+
+	uint32_t wait_time_ms = 0;
+	while (1) {
+		// ALGO_STATUS 레지스터 읽기
+		uint32_t current_status = MCF8316C_ReadReg32(REG_ALGO_STATUS);
+		uint8_t motor_state = current_status & 0x0F; // 하위 4비트가 현재 모터 상태
+
+		// 진행 중 결함이 발생했는지 실시간 확인
+		MCF8316C_FaultStatus_t current_faults = { 0 };
+		MCF8316C_Read_Faults(&current_faults);
+
+		if (current_faults.controller_fault != 0
+				|| current_faults.gate_driver_fault != 0) {
+			break; // 폴트 발생 시 불필요한 대기를 멈추고 즉시 탈출
+		}
+
+		// 모터 상태가 0(MOTOR_IDLE)으로 돌아오면 측정이 모두 끝난 것입니다.
+		if (motor_state == 0) {
+			break;
+		}
+
+		// 무한 루프 방지를 위한 타임아웃 안전장치 (최대 30초 대기)
+		if (wait_time_ms >= 30000) {
+			break;
+		}
+
+		// 진행 경과 시간 출력 (예: "Wait 3.4 s")
+		sprintf(lcd_buf, "Wait %lu.%lu s   ", wait_time_ms / 1000,
+				(wait_time_ms % 1000) / 100);
 		LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-		HAL_Delay(1000);
+
+		HAL_Delay(100);
+		wait_time_ms += 100;
 	}
 
 	// ==========================================================
