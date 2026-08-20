@@ -2461,4 +2461,10 @@ uint8_t MCF8316C_Is_NFAULT_Active(void);
 void MCF8316C_Config_Manual(void);
 void MCF8316C_Set_PI_Gains(uint32_t c_kp, uint32_t c_ki, uint32_t s_kp, uint32_t s_ki);
 
+void MCF8316C_Run_MPET(void);
+
+void MCF8316C_Brake(uint8_t on);
+void MCF8316C_SetDir(uint8_t ccw);
+uint8_t MCF8316C_FindAddress(void);
+
 #endif /* BSP_MCF8316C_MCF8316C_H_ */

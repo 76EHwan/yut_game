@@ -2,7 +2,10 @@
 /**
  ******************************************************************************
  * @file           : main.c
- * @brief          : Main program body
+ * @brief          : Balance cube - reaction wheel flip test
+ *
+ *  스핀업 → 유지 → 점프(제동 또는 반전) → 자이로로 전달 임펄스 측정
+ *  FLIP_MODE 매크로 하나만 바꿔서 두 방식을 비교합니다.
  ******************************************************************************
  */
 /* USER CODE END Header */
@@ -19,33 +22,45 @@
 #include "lsm6ds3tr_c.h"
 #include "mcf8316c.h"
 #include <stdio.h>
+#include <math.h>
 /* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+// ============================================================
+// 실험 설정 — 여기만 바꿔가며 비교하세요
+// ============================================================
+#define FLIP_BRAKE          0   // 저측 단락 제동 (ΔL = Jω, 피크 토크 큼)
+#define FLIP_REVERSE        1   // 역구동 반전   (ΔL = 2Jω, 영속도 구간 존재)
+
+#define FLIP_MODE           FLIP_BRAKE   // ← 0 / 1 로 전환
+
+#define SPINUP_START        30.0f   // 시동 지령 (핸드오프 임계 10%보다 위)
+#define SPINUP_TARGET       95.0f   // 목표 지령
+#define RAMP_STEP           5.0f    // 램프 1스텝
+#define RAMP_PERIOD_MS      200     // 램프 주기
+#define HANDOFF_WAIT_MS     2000    // 시동 후 클로즈드 루프 안착 대기
+#define HOLD_MS             500    // 목표 도달 후 유지 시간
+#define POST_FLIP_MS        3000    // 점프 후 자이로 관측 시간
+
+#define LOOP_PERIOD_MS      20      // 메인 루프 주기 (점프 순간 분해능)
+#define LCD_PERIOD_MS       200     // LCD 갱신 주기 (SPI가 느려서 분리)
+
+#define SPIN_DIR            0       // 0 = CW, 1 = CCW
+
 /* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
 
+/* USER CODE BEGIN PFP */
+typedef enum {
+	ST_SPINUP = 0, ST_HANDOFF, ST_RAMP, ST_HOLD, ST_FLIP, ST_DONE
+} FlipState_t;
+
+static const char *state_name[] = { "SPINUP", "HANDOFF", "RAMP", "HOLD", "FLIP",
+		"DONE" };
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -53,36 +68,54 @@ void SystemClock_Config(void);
 void ExitRun0Mode(void) {
 }
 
-static void LED_Blink(uint32_t Hdelay, uint32_t Ldelay) {
-	HAL_GPIO_WritePin(E3_GPIO_Port, E3_Pin, GPIO_PIN_SET);
-	HAL_Delay(Hdelay - 1);
-	HAL_GPIO_WritePin(E3_GPIO_Port, E3_Pin, GPIO_PIN_RESET);
-	HAL_Delay(Ldelay - 1);
+// ------------------------------------------------------------
+// 브레이크 GPIO — 실장된 채널만 제어 (L쪽 미실장)
+// ------------------------------------------------------------
+static void Brake_Pin_Set(GPIO_PinState s) {
+	HAL_GPIO_WritePin(MTR_R_BRAKE_GPIO_Port, MTR_R_BRAKE_Pin, s);
+}
+
+// ------------------------------------------------------------
+// 자이로 Z축 각속도 [dps]
+//
+// TODO: lsm6ds3tr_c 드라이버의 실제 함수명으로 채우세요.
+//       (프로젝트마다 API가 달라 임의로 호출하지 않았습니다)
+//       예) int16_t raw[3]; LSM6DS3TR_C_GetGyro(raw);
+//           return raw[2] * 0.070f;   // ±2000dps 설정 시 70 mdps/LSB
+//
+// 이 함수를 채우기 전까지는 항상 0을 반환하므로
+// LCD의 PK 값은 0으로 표시됩니다. 나머지 동작에는 영향 없습니다.
+// ------------------------------------------------------------
+static float Gyro_ReadZ_dps(void) {
+	return 0.0f;
+}
+
+// ------------------------------------------------------------
+// 점프 동작 — 두 방식 중 하나 실행
+// ------------------------------------------------------------
+static void Flip_Execute(void) {
+#if (FLIP_MODE == FLIP_BRAKE)
+	// GPIO가 가장 빠르므로 먼저, I2C 경로는 보조로
+	Brake_Pin_Set(GPIO_PIN_SET);
+	MCF8316C_Set_Speed(0.0f);
+	MCF8316C_Brake(1);
+#else
+	// DIR_CHANGE_MODE_REVERSE_DRIVE 이므로 재시동 없이 역구동으로 통과한다.
+	// 속도 지령 크기는 그대로 두고 방향만 뒤집는다.
+	MCF8316C_SetDir(1);
+	MCF8316C_Set_Speed(SPINUP_TARGET);
+#endif
 }
 /* USER CODE END 0 */
 
 /**
  * @brief  The application entry point.
- * @retval int
  */
 int main(void) {
 
-	/* USER CODE BEGIN 1 */
-
-	/* USER CODE END 1 */
-
 	/* MCU Configuration--------------------------------------------------------*/
-
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 	SystemClock_Config();
-	/* USER CODE BEGIN Init */
-
-	/* USER CODE END Init */
-
-	/* USER CODE BEGIN SysInit */
-
-	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
@@ -94,222 +127,217 @@ int main(void) {
 	MX_I2C4_Init();
 
 	/* USER CODE BEGIN 2 */
+	// 제동 해제 상태로 시작 — HIGH로 떠 있으면 모터가 아예 안 돈다
+	Brake_Pin_Set(GPIO_PIN_RESET);
+
 	LCD_Test();
 	HAL_Delay(500);
 
-	char lcd_buf[20];
+	char lcd_buf[32];
 
 	// ==========================================================
-	// 1. 칩 Wake-Up (SPEED 핀을 무조건 HIGH 상태로 만들기)
+	// 1. 칩 Wake-Up (SPEED 핀 HIGH 유지)
 	// ==========================================================
 	HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
 	__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1,
-			__HAL_TIM_GET_AUTORELOAD(&htim8)); // 100% Duty
-	HAL_Delay(100); // 칩이 완전히 깨어날 때까지 대기
+			__HAL_TIM_GET_AUTORELOAD(&htim8));
+	HAL_Delay(100);
 
 	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,
 			ST7735Ctx.Height, BLACK);
 
 	// ==========================================================
-	// 2. I2C 자동 스캐너
+	// 2. I2C 주소 확인 (기본 0x02 우선, 실패 시 스캔)
 	// ==========================================================
 	sprintf(lcd_buf, "I2C Scanning...");
 	LCD_ShowString(2, 4, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
 
-	uint8_t found_addr = 0;
-	for (uint8_t i = 1; i < 128; i++) {
-		uint8_t addr_8bit = i << 1;
-		if (HAL_I2C_IsDeviceReady(MCF_I2C, addr_8bit, 3, 10) == HAL_OK) {
-			found_addr = addr_8bit;
-			break; // 가장 먼저 찾은 주소 저장
-		}
-	}
-
-	// 통신 연결 확인 및 주소 전역 변수 동기화
-	if (found_addr != 0) {
-		mcf_i2c_addr_8bit = found_addr; // 스캔된 주소를 라이브러리에 전달
-		sprintf(lcd_buf, "Found: 0x%02X", found_addr);
-	} else {
+	uint8_t found_addr = MCF8316C_FindAddress();
+	if (found_addr == 0) {
 		sprintf(lcd_buf, "I2C Not Found!");
 		LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
 		while (1)
-			; // 통신 불가 시 여기서 무한 대기 (하드웨어 결선 확인 필요)
+			;
 	}
+	mcf_i2c_addr_8bit = found_addr;
+	sprintf(lcd_buf, "Found: 0x%02X", found_addr);
 	LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-	HAL_Delay(1000);
+	HAL_Delay(500);
 
 	// ==========================================================
-	// 3. MPET 전 초기화 및 레지스터 설정
+	// 3. 레지스터 설정
 	// ==========================================================
-	MCF8316C_Clear_Faults(); // 부팅 시 발생한 일시적 Fault 찌꺼기 제거 (매우 중요)
+	sprintf(lcd_buf, "Configuring...");
+	LCD_ShowString(2, 40, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+
+	MCF8316C_Clear_Faults();
 	HAL_Delay(100);
 
-	MCF8316C_Config_MPET();  // 레지스터 설정 덮어쓰기 (전압 리미트 무제한 등 적용)
+	MCF8316C_Config_Manual();
 	HAL_Delay(100);
 
-	// 통신 생존 여부 재확인
 	if (MCF8316C_ReadReg32(REG_DEVICE_CONFIG1) == 0) {
 		sprintf(lcd_buf, "I2C READ FAIL!");
-		LCD_ShowString(2, 40, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+		LCD_ShowString(2, 58, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
 		while (1)
 			;
 	}
 
-	// ==========================================================
-	// 4. MPET 측정 시작 및 대기
-	// ==========================================================
-	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,
-			ST7735Ctx.Height, BLACK);
-
-	sprintf(lcd_buf, "MPET Start...");
-	LCD_ShowString(2, 4, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	MCF8316C_Start_MPET();
-
-	// 칩이 MPET를 시작하고 상태를 변경할 시간을 줍니다.
-	HAL_Delay(500);
-
-	uint32_t wait_time_ms = 0;
-	while (1) {
-		// ALGO_STATUS 레지스터 읽기
-		uint32_t current_status = MCF8316C_ReadReg32(REG_ALGO_STATUS);
-		uint8_t motor_state = current_status & 0x0F; // 하위 4비트가 현재 모터 상태
-
-		// 진행 중 결함이 발생했는지 실시간 확인
-		MCF8316C_FaultStatus_t current_faults = { 0 };
-		MCF8316C_Read_Faults(&current_faults);
-
-		if (current_faults.controller_fault != 0
-				|| current_faults.gate_driver_fault != 0) {
-			break; // 폴트 발생 시 불필요한 대기를 멈추고 즉시 탈출
-		}
-
-		// 모터 상태가 0(MOTOR_IDLE)으로 돌아오면 측정이 모두 끝난 것입니다.
-		if (motor_state == 0) {
-			break;
-		}
-
-		// 무한 루프 방지를 위한 타임아웃 안전장치 (최대 30초 대기)
-		if (wait_time_ms >= 30000) {
-			break;
-		}
-
-		// 진행 경과 시간 출력 (예: "Wait 3.4 s")
-		sprintf(lcd_buf, "Wait %lu.%lu s   ", wait_time_ms / 1000,
-				(wait_time_ms % 1000) / 100);
-		LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-		HAL_Delay(100);
-		wait_time_ms += 100;
-	}
+	// 회전 방향을 명시적으로 고정 (반전 모드에서 기준점이 필요)
+	MCF8316C_SetDir(SPIN_DIR);
+	HAL_Delay(20);
 
 	// ==========================================================
-	// 5. MPET 완료 후 상태 및 결함(Fault) 확인
+	// 4. 클로즈드 루프 활성화
 	// ==========================================================
-	MCF8316C_FaultStatus_t faults = { 0 };
-	MCF8316C_Read_Faults(&faults);
-	uint32_t algo_status = MCF8316C_ReadReg32(REG_ALGO_STATUS); // 0xE4
-
-	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,
-			ST7735Ctx.Height, BLACK);
-
-	if (faults.controller_fault != 0 || faults.gate_driver_fault != 0) {
-		sprintf(lcd_buf, "MPET FAILED!");
-	} else {
-		sprintf(lcd_buf, "MPET SUCCESS!");
-	}
-	LCD_ShowString(2, 4, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	sprintf(lcd_buf, "CT:%08lX", faults.controller_fault);
-	LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	sprintf(lcd_buf, "ST:%08lX", algo_status);
-	LCD_ShowString(2, 40, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	HAL_Delay(3000); // 상태 코드를 눈으로 확인할 수 있도록 3초 대기
-
-	// ==========================================================
-	// 6. MPET 파라미터 결과 읽기 및 출력
-	// ==========================================================
-	MCF8316C_MotorParams_t mpet_params = { 0 };
-	MCF8316C_Read_MPET_Results(&mpet_params);
-
-	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,
-			ST7735Ctx.Height, BLACK);
-
-	sprintf(lcd_buf, "--- RESULT ---");
-	LCD_ShowString(2, 4, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	// R, L, Ke
-	sprintf(lcd_buf, "R%02X L%02X K%02X", mpet_params.resistance_hex,
-			mpet_params.inductance_hex, mpet_params.bemf_const_hex);
-	LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	// Current PI
-	sprintf(lcd_buf, "C:%lu,%lu", mpet_params.curr_loop_kp,
-			mpet_params.curr_loop_ki);
-	LCD_ShowString(2, 40, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	// Speed PI
-	sprintf(lcd_buf, "S:%lu,%lu", mpet_params.spd_loop_kp,
-			mpet_params.spd_loop_ki);
-	LCD_ShowString(2, 58, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
-
-	// ==========================================================
-	// 7. 실 구동 준비 및 속도 지령 전송 (I2C)
-	// ==========================================================
-	MCF8316C_Clear_Faults();
-	HAL_Delay(100);
-
-	// [매우 중요] MPET 디버그 측정 플래그를 끄고 일반 운전 모드로 칩 설정을 재적용합니다.
-	// (이 과정을 거쳐야 칩이 측정 모드에서 벗어나 정상 제어 루프로 진입합니다.)
-	MCF8316C_WriteReg32(REG_ALGO_DEBUG2, 0x00000000); // 디버그/MPET 비트 전부 클리어
-	HAL_Delay(100);
-
-	// 클로즈드 루프 활성화 (CLOSED_LOOP 비트 켬)
 	uint32_t algo_dbg1 = MCF8316C_ReadReg32(REG_ALGO_DEBUG1);
-	algo_dbg1 &= ~CLOSED_LOOP_DIS; // Closed-loop Enable (0)
+	algo_dbg1 &= ~CLOSED_LOOP_DIS;
 	MCF8316C_WriteReg32(REG_ALGO_DEBUG1, algo_dbg1);
 	HAL_Delay(100);
 
-	// 이제 I2C를 통해 안전하게 속도 지령 전송 (예: 25%)
-	MCF8316C_Set_Speed(25.0f);
-
+	ST7735_LCD_Driver.FillRect(&st7735_pObj, 0, 0, ST7735Ctx.Width,
+			ST7735Ctx.Height, BLACK);
 	/* USER CODE END 2 */
+
+	// ==========================================================
+	// 5. 상태 머신
+	// ==========================================================
+	FlipState_t state = ST_SPINUP;
+	float current_speed = 0.0f;
+
+	uint32_t t_state = HAL_GetTick();   // 현재 상태 진입 시각
+	uint32_t t_ramp = HAL_GetTick();    // 마지막 램프 스텝 시각
+	uint32_t t_lcd = 0;                 // 마지막 LCD 갱신 시각
+	uint32_t t_flip = 0;                // 점프 실행 시각
+
+	uint32_t first_fault_c = 0;         // 처음 잡힌 컨트롤러 폴트
+	uint32_t first_fault_g = 0;         // 처음 잡힌 게이트 드라이버 폴트
+	float first_fault_spd = 0.0f;
+
+	float gyro_peak = 0.0f;             // 점프 후 자이로 피크 [dps]
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1) {
-		/* USER CODE END WHILE */
+		uint32_t now = HAL_GetTick();
 
-		/* USER CODE BEGIN 3 */
-		HAL_Delay(100);
+		// ---------- 상태 전이 ----------
+		switch (state) {
+
+		case ST_SPINUP:
+			// 고정 지령으로 시동을 건다 (여기서 지령을 흔들면 정렬이 리셋됨)
+			current_speed = SPINUP_START;
+			MCF8316C_Set_Speed(current_speed);
+			state = ST_HANDOFF;
+			t_state = now;
+			break;
+
+		case ST_HANDOFF:
+			// 정렬(500ms) + 오픈루프 가속 + 클로즈드 루프 핸드오프 완료 대기
+			if (now - t_state >= HANDOFF_WAIT_MS) {
+				state = ST_RAMP;
+				t_state = now;
+				t_ramp = now;
+			}
+			break;
+
+		case ST_RAMP:
+			if (now - t_ramp >= RAMP_PERIOD_MS) {
+				t_ramp = now;
+				current_speed += RAMP_STEP;
+				if (current_speed >= SPINUP_TARGET) {
+					current_speed = SPINUP_TARGET;
+					state = ST_HOLD;
+					t_state = now;
+				}
+				MCF8316C_Set_Speed(current_speed);
+			}
+			break;
+
+		case ST_HOLD:
+			// 목표 속도에서 안정화될 시간을 준다
+			if (now - t_state >= HOLD_MS) {
+				Flip_Execute();
+				t_flip = now;
+				state = ST_FLIP;
+				t_state = now;
+			}
+			break;
+
+		case ST_FLIP:
+			// 점프 직후 구간 — 자이로 피크를 잡는다
+			{
+				float w = Gyro_ReadZ_dps();
+				if (fabsf(w) > fabsf(gyro_peak))
+					gyro_peak = w;
+			}
+			if (now - t_state >= POST_FLIP_MS) {
+				state = ST_DONE;
+				t_state = now;
+			}
+			break;
+
+		case ST_DONE:
+		default:
+			// 아무것도 하지 않고 결과만 표시한다
+			break;
+		}
+
+		// ---------- 폴트 감시 (매 루프) ----------
+		MCF8316C_FaultStatus_t faults = { 0 };
+		MCF8316C_Read_Faults(&faults);
+
+		if (first_fault_c == 0 && faults.controller_fault != 0) {
+			first_fault_c = faults.controller_fault;
+			first_fault_spd = current_speed;
+		}
+		if (first_fault_g == 0 && faults.gate_driver_fault != 0) {
+			first_fault_g = faults.gate_driver_fault;
+		}
+
+		// ---------- LCD (모든 줄 y <= 58) ----------
+		if (now - t_lcd >= LCD_PERIOD_MS || state == ST_DONE) {
+			t_lcd = now;
+
+			sprintf(lcd_buf, "%-7s %5.1f%%", state_name[state], current_speed);
+			LCD_ShowString(2, 4, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+
+			sprintf(lcd_buf, "C %08lX", faults.controller_fault);
+			LCD_ShowString(2, 22, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+
+			sprintf(lcd_buf, "G %08lX", faults.gate_driver_fault);
+			LCD_ShowString(2, 40, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+
+			if (state >= ST_FLIP) {
+				// 점프 후: 자이로 피크와 점프 이후 경과 시간
+				sprintf(lcd_buf, "PK%6.0f  %4lums", gyro_peak, now - t_flip);
+			} else {
+				// 점프 전: 처음 잡힌 폴트
+				sprintf(lcd_buf, "1st %08lX@%2.0f", first_fault_c,
+						first_fault_spd);
+			}
+			LCD_ShowString(2, 58, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+		}
+
+		HAL_Delay(LOOP_PERIOD_MS);
+		/* USER CODE END WHILE */
 	}
 	/* USER CODE END 3 */
 }
 
 /**
  * @brief System Clock Configuration
- * @retval None
  */
 void SystemClock_Config(void) {
 	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
-	/** Supply configuration update enable
-	 */
 	HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
-
-	/** Configure the main internal regulator output voltage
-	 */
 	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
 	while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {
 	}
 
-	/** Initializes the RCC Oscillators according to the specified parameters
-	 * in the RCC_OscInitTypeDef structure.
-	 */
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
 	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -326,8 +354,6 @@ void SystemClock_Config(void) {
 		Error_Handler();
 	}
 
-	/** Initializes the CPU, AHB and APB buses clocks
-	 */
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
 			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1
 			| RCC_CLOCKTYPE_D1PCLK1;
@@ -350,29 +376,16 @@ void SystemClock_Config(void) {
 
 /**
  * @brief  This function is executed in case of error occurrence.
- * @retval None
  */
 void Error_Handler(void) {
 	/* USER CODE BEGIN Error_Handler_Debug */
-	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
 	while (1) {
 	}
 	/* USER CODE END Error_Handler_Debug */
 }
 #ifdef USE_FULL_ASSERT
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
