@@ -21989,7 +21989,7 @@ int main(void) {
  8008bd4:	6afa      	ldr	r2, [r7, #44]	@ 0x2c
  8008bd6:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
  8008bd8:	1ad3      	subs	r3, r2, r3
- 8008bda:	f5b3 6ffa 	cmp.w	r3, #2000	@ 0x7d0
+ 8008bda:	f5b3 7f7a 	cmp.w	r3, #1000	@ 0x3e8
  8008bde:	d35d      	bcc.n	8008c9c <main+0x300>
 				state = ST_RAMP;
  8008be0:	2302      	movs	r3, #2

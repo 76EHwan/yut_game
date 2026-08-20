@@ -40,7 +40,7 @@
 #define SPINUP_TARGET       95.0f   // 목표 지령
 #define RAMP_STEP           5.0f    // 램프 1스텝
 #define RAMP_PERIOD_MS      200     // 램프 주기
-#define HANDOFF_WAIT_MS     2000    // 시동 후 클로즈드 루프 안착 대기
+#define HANDOFF_WAIT_MS     1000    // 시동 후 클로즈드 루프 안착 대기
 #define HOLD_MS             500    // 목표 도달 후 유지 시간
 #define POST_FLIP_MS        3000    // 점프 후 자이로 관측 시간
 
