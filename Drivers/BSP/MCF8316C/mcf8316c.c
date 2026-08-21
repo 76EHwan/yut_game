@@ -4,6 +4,7 @@
 
 #include "mcf8316c.h"
 #include "i2c.h"
+#include "tim.h"
 
 // @formatter:off
 // ==========================================
@@ -11,8 +12,8 @@
 // ==========================================
 static const uint32_t REG_ISD_CONFIG_DATA =
 // ISD enable
-//	ISD_DIS |
-	ISD_EN |
+	ISD_DIS |
+//	ISD_EN |
 
 // ISD brake enable
 //	BRAKE_DIS |
@@ -108,9 +109,9 @@ static const uint32_t REG_ISD_CONFIG_DATA =
 
 // Speed threshold used to transition to open loop during reverse drive
 //	REV_DRV_HANDOFF_THR_2P5_PER |
-	REV_DRV_HANDOFF_THR_5_PER |
+//	REV_DRV_HANDOFF_THR_5_PER |
 //	REV_DRV_HANDOFF_THR_7P5_PER |
-//	REV_DRV_HANDOFF_THR_10_PER |
+	REV_DRV_HANDOFF_THR_10_PER |
 //	REV_DRV_HANDOFF_THR_12P5_PER |
 //	REV_DRV_HANDOFF_THR_15_PER |
 //	REV_DRV_HANDOFF_THR_20_PER |
@@ -134,7 +135,7 @@ static const uint32_t REG_REV_DRIVE_CONFIG_DATA =
 // Open loop acceleration coefficient A1 during reverse drive
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_0P1_HZ_S |
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_0P5_HZ_S |
-	REV_DRV_OPEN_LOOP_ACCEL_A1_1_HZ_S |
+//	REV_DRV_OPEN_LOOP_ACCEL_A1_1_HZ_S |
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_2P5_HZ_S |
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_5_HZ_S |
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_10_HZ_S |
@@ -147,10 +148,10 @@ static const uint32_t REG_REV_DRIVE_CONFIG_DATA =
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_750_HZ_S |
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_1000_HZ_S |
 //	REV_DRV_OPEN_LOOP_ACCEL_A1_5000_HZ_S |
-//	REV_DRV_OPEN_LOOP_ACCEL_A1_10000_HZ_S |
+	REV_DRV_OPEN_LOOP_ACCEL_A1_10000_HZ_S |
 
 // Open loop acceleration coefficient A2 during reverse drive
-	REV_DRV_OPEN_LOOP_ACCEL_A2_0P0_HZ_S2 |
+//	REV_DRV_OPEN_LOOP_ACCEL_A2_0P0_HZ_S2 |
 //	REV_DRV_OPEN_LOOP_ACCEL_A2_0P5_HZ_S2 |
 //	REV_DRV_OPEN_LOOP_ACCEL_A2_1_HZ_S2 |
 //	REV_DRV_OPEN_LOOP_ACCEL_A2_2P5_HZ_S2 |
@@ -165,17 +166,17 @@ static const uint32_t REG_REV_DRIVE_CONFIG_DATA =
 //	REV_DRV_OPEN_LOOP_ACCEL_A2_750_HZ_S2 |
 //	REV_DRV_OPEN_LOOP_ACCEL_A2_1000_HZ_S2 |
 //	REV_DRV_OPEN_LOOP_ACCEL_A2_5000_HZ_S2 |
-//	REV_DRV_OPEN_LOOP_ACCEL_A2_10000_HZ_S2 |
+	REV_DRV_OPEN_LOOP_ACCEL_A2_10000_HZ_S2 |
 
 // Bus current limit during active braking
 //	ACTIVE_BRAKE_CURRENT_LIMIT_0P5_A |
 //	ACTIVE_BRAKE_CURRENT_LIMIT_1_A |
-	ACTIVE_BRAKE_CURRENT_LIMIT_2_A |
+//	ACTIVE_BRAKE_CURRENT_LIMIT_2_A |
 //	ACTIVE_BRAKE_CURRENT_LIMIT_3_A |
 //	ACTIVE_BRAKE_CURRENT_LIMIT_4_A |
 //	ACTIVE_BRAKE_CURRENT_LIMIT_5_A |
 //	ACTIVE_BRAKE_CURRENT_LIMIT_6_A |
-//	ACTIVE_BRAKE_CURRENT_LIMIT_7_A |
+	ACTIVE_BRAKE_CURRENT_LIMIT_7_A |
 
 // Active braking loop Kp
 	(0x0 << ACTIVE_BRAKE_KP_BASE) |
@@ -189,9 +190,9 @@ static const uint32_t REG_REV_DRIVE_CONFIG_DATA =
 // ==========================================
 static const uint32_t REG_MOTOR_STARTUP1_DATA =
 // Motor start-up method
-//	MTR_STARTUP_ALIGN |
+	MTR_STARTUP_ALIGN |
 //	MTR_STARTUP_DOUBLE_ALIGN |
-	MTR_STARTUP_IPD |
+//	MTR_STARTUP_IPD |
 //	MTR_STARTUP_SLOW_FIRST_CYCLE |
 
 // Align, slow first cycle and open loop current ramp rate
@@ -215,11 +216,11 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 // Align time
 //	ALIGN_TIME_10_MS |
 //	ALIGN_TIME_50_MS |
-	ALIGN_TIME_100_MS |
+//	ALIGN_TIME_100_MS |
 //	ALIGN_TIME_200_MS |
 //	ALIGN_TIME_300_MS |
 //	ALIGN_TIME_400_MS |
-//	ALIGN_TIME_500_MS |
+	ALIGN_TIME_500_MS |
 //	ALIGN_TIME_750_MS |
 //	ALIGN_TIME_1_S |
 //	ALIGN_TIME_1P5_S |
@@ -234,9 +235,9 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_0P125_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_0P25_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_0P5_A |
-	ALIGN_OR_SLOW_CURRENT_ILIMIT_1_A |
+//	ALIGN_OR_SLOW_CURRENT_ILIMIT_1_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_1P5_A |
-//	ALIGN_OR_SLOW_CURRENT_ILIMIT_2_A |
+	ALIGN_OR_SLOW_CURRENT_ILIMIT_2_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_2P5_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_3_A |
 //	ALIGN_OR_SLOW_CURRENT_ILIMIT_3P5_A |
@@ -262,7 +263,7 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 //	IPD_CURR_THR_0P25_A |
 //	IPD_CURR_THR_0P5_A |
 //	IPD_CURR_THR_0P75_A |
-	IPD_CURR_THR_1_A |
+//	IPD_CURR_THR_1_A |
 //	IPD_CURR_THR_1P25_A |
 //	IPD_CURR_THR_1P5_A |
 //	IPD_CURR_THR_2_A |
@@ -271,7 +272,7 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 //	IPD_CURR_THR_3P667_A |
 //	IPD_CURR_THR_4_A |
 //	IPD_CURR_THR_4P667_A |
-//	IPD_CURR_THR_5_A |
+	IPD_CURR_THR_5_A |
 //	IPD_CURR_THR_5P333_A |
 //	IPD_CURR_THR_6_A |
 //	IPD_CURR_THR_6P667_A |
@@ -304,8 +305,8 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 	ACTIVE_BRAKE_EN |
 
 // Choose between forward and reverse drive setting for reverse drive
-	REV_DRV_CONFIG_FORWARD;
-//	REV_DRV_CONFIG_REVERSE;
+//	REV_DRV_CONFIG_FORWARD;
+	REV_DRV_CONFIG_REVERSE;
 
 
 // ==========================================
@@ -318,7 +319,7 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ILIMIT_0P5_A |
 //	OL_ILIMIT_1_A |
 //	OL_ILIMIT_1P5_A |
-	OL_ILIMIT_2_A |
+//	OL_ILIMIT_2_A |
 //	OL_ILIMIT_2P5_A |
 //	OL_ILIMIT_3_A |
 //	OL_ILIMIT_3P5_A |
@@ -328,7 +329,7 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ILIMIT_5P5_A |
 //	OL_ILIMIT_6_A |
 //	OL_ILIMIT_7_A |
-//	OL_ILIMIT_8_A |
+	OL_ILIMIT_8_A |
 
 // Open loop acceleration coefficient A1
 //	OL_ACC_A1_0P1_HZ_S |
@@ -336,11 +337,11 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ACC_A1_1_HZ_S |
 //	OL_ACC_A1_2P5_HZ_S |
 //	OL_ACC_A1_5_HZ_S |
-	OL_ACC_A1_10_HZ_S |
+//	OL_ACC_A1_10_HZ_S |
 //	OL_ACC_A1_25_HZ_S |
 //	OL_ACC_A1_50_HZ_S |
 //	OL_ACC_A1_75_HZ_S |
-//	OL_ACC_A1_100_HZ_S |
+	OL_ACC_A1_100_HZ_S |
 //	OL_ACC_A1_250_HZ_S |
 //	OL_ACC_A1_500_HZ_S |
 //	OL_ACC_A1_750_HZ_S |
@@ -349,14 +350,14 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ACC_A1_10000_HZ_S |
 
 // Open loop acceleration coefficient A2
-	OL_ACC_A2_0P0_HZ_S2 |
+//	OL_ACC_A2_0P0_HZ_S2 |
 //	OL_ACC_A2_0P5_HZ_S2 |
 //	OL_ACC_A2_1_HZ_S2 |
 //	OL_ACC_A2_2P5_HZ_S2 |
 //	OL_ACC_A2_5_HZ_S2 |
 //	OL_ACC_A2_10_HZ_S2 |
 //	OL_ACC_A2_25_HZ_S2 |
-//	OL_ACC_A2_50_HZ_S2 |
+	OL_ACC_A2_50_HZ_S2 |
 //	OL_ACC_A2_75_HZ_S2 |
 //	OL_ACC_A2_100_HZ_S2 |
 //	OL_ACC_A2_250_HZ_S2 |
@@ -372,8 +373,8 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 
 // Open to closed loop handoff threshold (% of MAX_SPEED)
 //	OPN_CL_HANDOFF_THR_1_PER |
-//	OPN_CL_HANDOFF_THR_5_PER |
-	OPN_CL_HANDOFF_THR_10_PER |
+	OPN_CL_HANDOFF_THR_5_PER |
+//	OPN_CL_HANDOFF_THR_10_PER |
 //	OPN_CL_HANDOFF_THR_20_PER |
 //	OPN_CL_HANDOFF_THR_30_PER |
 //	OPN_CL_HANDOFF_THR_40_PER |
@@ -387,13 +388,14 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 
 // Frequency of first cycle in open loop start-up
 //	SLOW_FIRST_CYCLE_FREQ_0P1_PER |
-	SLOW_FIRST_CYCLE_FREQ_1_PER |
+//	SLOW_FIRST_CYCLE_FREQ_1_PER |
+	SLOW_FIRST_CYCLE_FREQ_2P5_PER |
 //	SLOW_FIRST_CYCLE_FREQ_10_PER |
 //	SLOW_FIRST_CYCLE_FREQ_25_PER |
 
 // First cycle frequency in open loop for align, double align and IPD
-	FIRST_CYCLE_FREQ_SEL_0_HZ |
-//	FIRST_CYCLE_FREQ_SEL_SLOW_FIRST_CYC_FREQ |
+//	FIRST_CYCLE_FREQ_SEL_0_HZ |
+	FIRST_CYCLE_FREQ_SEL_SLOW_FIRST_CYC_FREQ |
 
 // Ramp rate for reducing difference between estimated theta and open loop theta
 //	THETA_ERROR_RAMP_RATE_0P01_DEG_MS |
@@ -411,16 +413,72 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 //	OVERMODULATION_EN |
 
 // Closed loop acceleration
+//	CL_ACC_0P5 |
+//	CL_ACC_1 |
+//	CL_ACC_2P5 |
+//	CL_ACC_5 |
+//	CL_ACC_7P5 |
 //	CL_ACC_10 |
+//	CL_ACC_20 |
+//	CL_ACC_40 |
+//	CL_ACC_60 |
+//	CL_ACC_80 |
 //	CL_ACC_100 |
-	CL_ACC_500 |
-//	CL_ACC_NO_LIMIT |
+//	CL_ACC_200 |
+//	CL_ACC_300 |
+//	CL_ACC_400 |
+//	CL_ACC_500 |
+//	CL_ACC_600 |
+//	CL_ACC_700 |
+//	CL_ACC_800 |
+//	CL_ACC_900 |
+//	CL_ACC_1000 |
+//	CL_ACC_2000 |
+//	CL_ACC_4000 |
+//	CL_ACC_6000 |
+//	CL_ACC_8000 |
+//	CL_ACC_10000 |
+//	CL_ACC_20000 |
+//	CL_ACC_30000 |
+//	CL_ACC_40000 |
+//	CL_ACC_50000 |
+//	CL_ACC_60000 |
+//	CL_ACC_70000 |
+	CL_ACC_NO_LIMIT |
 
 // Closed loop deceleration
+//	CL_DEC_0P5 |
+//	CL_DEC_1 |
+//	CL_DEC_2P5 |
+//	CL_DEC_5 |
+//	CL_DEC_7P5 |
 //	CL_DEC_10 |
+//	CL_DEC_20 |
+//	CL_DEC_40 |
+//	CL_DEC_60 |
+//	CL_DEC_80 |
 //	CL_DEC_100 |
-	CL_DEC_500 |
-//	CL_DEC_NO_LIMIT |
+//	CL_DEC_200 |
+//	CL_DEC_300 |
+//	CL_DEC_400 |
+//	CL_DEC_500 |
+//	CL_DEC_600 |
+//	CL_DEC_700 |
+//	CL_DEC_800 |
+//	CL_DEC_900 |
+//	CL_DEC_1000 |
+//	CL_DEC_2000 |
+//	CL_DEC_4000 |
+//	CL_DEC_6000 |
+//	CL_DEC_8000 |
+//	CL_DEC_10000 |
+//	CL_DEC_20000 |
+//	CL_DEC_30000 |
+//	CL_DEC_40000 |
+//	CL_DEC_50000 |
+//	CL_DEC_60000 |
+//	CL_DEC_70000 |
+	CL_DEC_NO_LIMIT |
 
 // PWM output frequency
 //	PWM_FREQ_OUT_10_KHZ |
@@ -470,57 +528,71 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 static const uint32_t REG_CLOSED_LOOP2_DATA =
 // Motor stop mode
 //	MTR_STOP_HI_Z |
-	MTR_STOP_RECIRCULATION_STOP |
-//	MTR_STOP_LOW_SIDE_BRAKING |
+//	MTR_STOP_RECIRCULATION_STOP |
+	MTR_STOP_LOW_SIDE_BRAKING |
 //	MTR_STOP_HIGH_SIDE_BRAKING |
 //	MTR_STOP_ACTIVE_SPIN_DOWN |
 
 // Brake time during motor stop
 //	MTR_STOP_BRK_TIME_1_MS |
-//	MTR_STOP_BRK_TIME_50_MS |
-	MTR_STOP_BRK_TIME_100_MS |
+	MTR_STOP_BRK_TIME_50_MS |
+//	MTR_STOP_BRK_TIME_100_MS |
 //	MTR_STOP_BRK_TIME_1000_MS |
 //	MTR_STOP_BRK_TIME_15000_MS |
 
 // Speed threshold for active spin down
-//	ACT_SPIN_THR_100_PER |
+	ACT_SPIN_THR_100_PER |
 //	ACT_SPIN_THR_50_PER |
-	ACT_SPIN_THR_10_PER |
+//	ACT_SPIN_THR_10_PER |
 //	ACT_SPIN_THR_2P5_PER |
 
 // Speed threshold for BRAKE pin and Motor stop
-//	BRAKE_SPEED_THRESHOLD_100_PER |
+	BRAKE_SPEED_THRESHOLD_100_PER |
 //	BRAKE_SPEED_THRESHOLD_50_PER |
-	BRAKE_SPEED_THRESHOLD_10_PER |
+//	BRAKE_SPEED_THRESHOLD_10_PER |
 //	BRAKE_SPEED_THRESHOLD_2P5_PER |
 
 // 8-bit values for motor phase resistance (MPET 자동 측정)
-	MOTOR_RES_SELF_MEASUREMENT |
-//	MOTOR_RES_0P010_OHM |
-//	MOTOR_RES_1P00_OHM |
+//	MOTOR_RES_SELF_MEASUREMENT |
+	MOTOR_RES_0P160_OHM |
 
 // 8-bit values for motor phase inductance (MPET 자동 측정)
-	MOTOR_IND_SELF_MEASUREMENT;
-//	MOTOR_IND_0P010_MH |
-//	MOTOR_IND_1P00_MH;
+//	MOTOR_IND_SELF_MEASUREMENT;
+	MOTOR_IND_0P022_MH;
 
 
 // ==========================================
 // 7.1.7 CLOSED_LOOP3 (0x8C)
 // ==========================================
+#define CURR_LOOP_KP_MSB2	0x2
+#define CURR_LOOP_KP_LSB8	0x2B
+#define CURR_LOOP_KP_VALUE	(CURR_LOOP_KP_MSB2 << 8 | CURR_LOOP_KP_MSB2)
+
+#define CURR_LOOP_KI_MSB2	0x2
+#define CURR_LOOP_KI_LSB8	0x7C
+#define CURR_LOOP_KI_VALUE	(CURR_LOOP_KI_MSB2 << 8 | CURR_LOOP_KI_MSB2)
+
+#define SPD_LOOP_KP_MSB2	0x1
+#define SPD_LOOP_KP_LSB8	0x06
+#define SPD_LOOP_KP_VALUE	(SPD_LOOP_KP_MSB2 << 8 | SPD_LOOP_KP_MSB2)
+
+#define SPD_LOOP_KI_MSB2	0x2
+#define SPD_LOOP_KI_LSB8	0x36
+#define SPD_LOOP_KI_VALUE	(SPD_LOOP_KI_MSB2 << 8 | SPD_LOOP_KI_MSB2)
+
 static const uint32_t REG_CLOSED_LOOP3_DATA =
 // 8-bit values for motor BEMF Constant (MPET 자동 측정)
-	MOTOR_BEMF_CONST_SELF_MEASUREMENT |
-//	MOTOR_BEMF_CONST_1P0_MV_HZ |
+//	MOTOR_BEMF_CONST_SELF_MEASUREMENT |
+		MOTOR_BEMF_CONST_9P2_MV_HZ |
 
 // 10-bit value for current Iq and Id loop Kp (MPET 자동 계산)
-	(0x0 << CURR_LOOP_KP_BASE) |
+	(CURR_LOOP_KP_VALUE  << CURR_LOOP_KP_BASE) |
 
 // 10-bit value for current Iq and Id loop Ki (MPET 자동 계산)
-	(0x0 << CURR_LOOP_KI_BASE) |
+	(CURR_LOOP_KI_VALUE  << CURR_LOOP_KI_BASE) |
 
 // 3 MSB bits for speed loop Kp (MPET 자동 계산)
-	(0x0 << SPD_LOOP_KP_MSB_BASE);
+	((SPD_LOOP_KP_VALUE >> 7) << SPD_LOOP_KP_MSB_BASE);
 
 
 // ==========================================
@@ -528,14 +600,14 @@ static const uint32_t REG_CLOSED_LOOP3_DATA =
 // ==========================================
 static const uint32_t REG_CLOSED_LOOP4_DATA =
 // 7 LSB bits for speed loop Kp (MPET 자동 계산)
-	(0x0 << SPD_LOOP_KP_LSB_BASE) |
+	((SPD_LOOP_KP_VALUE & 0x7F)  << SPD_LOOP_KP_LSB_BASE) |
 
 // 10-bit value for speed loop Ki (MPET 자동 계산)
-	(0x0 << SPD_LOOP_KI_BASE) |
+	(SPD_LOOP_KI_VALUE << SPD_LOOP_KI_BASE) |
 
 // Maximum motor electrical speed (Hz): {MAX_SPEED/6}
 // ex: 1000Hz -> (1000 * 6) = 6000
-	(7000 << MAX_SPEED_BASE);
+	(8000 << MAX_SPEED_BASE);
 
 
 // ==========================================
@@ -546,21 +618,21 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 //	ILIMIT_0P5_A |
 //	ILIMIT_1P0_A |
 //	ILIMIT_2P0_A |
-	ILIMIT_3P0_A |
+//	ILIMIT_3P0_A |
 //	ILIMIT_5P0_A |
-//	ILIMIT_8P0_A |
+	ILIMIT_8P0_A |
 
 // Comparator based lock detection current threshold
 //	HW_LOCK_ILIMIT_1P0_A |
 //	HW_LOCK_ILIMIT_2P0_A |
-	HW_LOCK_ILIMIT_4P0_A |
-//	HW_LOCK_ILIMIT_8P0_A |
+//	HW_LOCK_ILIMIT_4P0_A |
+	HW_LOCK_ILIMIT_8P0_A |
 
 // ADC based lock detection current threshold
 //	LOCK_ILIMIT_1P0_A |
 //	LOCK_ILIMIT_2P0_A |
-	LOCK_ILIMIT_4P0_A |
-//	LOCK_ILIMIT_8P0_A |
+//	LOCK_ILIMIT_4P0_A |
+	LOCK_ILIMIT_8P0_A |
 
 // Fault response type for EEPROM fault
 	EEP_FAULT_MODE_LATCHED |
@@ -569,20 +641,21 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 // Lock current limit mode
 //	LOCK_ILIMIT_MODE_LATCH_TRISTATE |
 //	LOCK_ILIMIT_MODE_LATCH_LS_BRAKE |
-	LOCK_ILIMIT_MODE_RETRY_TRISTATE |
+//	LOCK_ILIMIT_MODE_RETRY_TRISTATE |
+	LOCK_ILIMIT_MODE_RETRY_LS_BRAKE |
 //	LOCK_ILIMIT_MODE_REPORT_ONLY |
 //	LOCK_ILIMIT_MODE_DIS |
 
 // Lock current limit detection deglitch time
 //	LOCK_ILIMIT_DEG_NO_DEGLITCH |
 //	LOCK_ILIMIT_DEG_1_MS |
-	LOCK_ILIMIT_DEG_5_MS |
+//	LOCK_ILIMIT_DEG_5_MS |
 //	LOCK_ILIMIT_DEG_10_MS |
-//	LOCK_ILIMIT_DEG_1000_MS |
+	LOCK_ILIMIT_DEG_1000_MS |
 
 // Lock detection retry time
-//	LCK_RETRY_300_MS |
-	LCK_RETRY_1_S |
+	LCK_RETRY_300_MS |
+//	LCK_RETRY_1_S |
 //	LCK_RETRY_5_S |
 //	LCK_RETRY_14_S |
 
@@ -592,7 +665,8 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 
 // Motor lock mode
 //	MTR_LCK_MODE_LATCH_TRISTATE |
-	MTR_LCK_MODE_RETRY_TRISTATE |
+//	MTR_LCK_MODE_RETRY_TRISTATE |
+	MTR_LCK_MODE_RETRY_LS_BRAKE|
 //	MTR_LCK_MODE_REPORT_ONLY |
 //	MTR_LCK_MODE_DIS |
 
@@ -614,26 +688,26 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 // ==========================================
 static const uint32_t REG_FAULT_CONFIG2_DATA =
 // Lock 1 (Abnormal Speed) Enable
-//	LOCK1_DIS |
-	LOCK1_EN |
+	LOCK1_DIS |
+//	LOCK1_EN |
 
 // Lock 2 (Abnormal BEMF) Enable
-//	LOCK2_DIS |
-	LOCK2_EN |
+	LOCK2_DIS |
+//	LOCK2_EN |
 
 // Lock 3 (No Motor) Enable
-//	LOCK3_DIS |
-	LOCK3_EN |
+	LOCK3_DIS |
+//	LOCK3_EN |
 
 // Abnormal speed lock threshold (% of MAX_SPEED)
 //	LOCK_ABN_SPEED_130_PER |
-	LOCK_ABN_SPEED_150_PER |
-//	LOCK_ABN_SPEED_200_PER |
+//	LOCK_ABN_SPEED_150_PER |
+	LOCK_ABN_SPEED_200_PER |
 
 // Abnormal BEMF lock threshold (% of expected BEMF)
 //	ABNORMAL_BEMF_THR_40_PER |
-	ABNORMAL_BEMF_THR_50_PER |
-//	ABNORMAL_BEMF_THR_70_PER |
+//	ABNORMAL_BEMF_THR_50_PER |
+	ABNORMAL_BEMF_THR_70_PER |
 
 // No motor lock threshold
 //	NO_MTR_THR_0P0375_A |
@@ -643,7 +717,8 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 
 // Hardware lock current limit mode
 //	HW_LOCK_ILIMIT_MODE_LATCH_TRISTATE |
-	HW_LOCK_ILIMIT_MODE_RETRY_TRIS |
+//	HW_LOCK_ILIMIT_MODE_RETRY_TRIS |
+	HW_LOCK_ILIMIT_MODE_RETRY_LS |
 //	HW_LOCK_ILIMIT_MODE_REPORT_ONLY |
 //	HW_LOCK_ILIMIT_MODE_DIS |
 
@@ -659,25 +734,24 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 
 // Controller under voltage fault threshold
 //	MIN_VM_MOTOR_NO_LIMIT |
-//	MIN_VM_MOTOR_6_V |
-	MIN_VM_MOTOR_8_V |
+	MIN_VM_MOTOR_6_V |
+//	MIN_VM_MOTOR_8_V |
 //	MIN_VM_MOTOR_10_V |
 //	MIN_VM_MOTOR_18_V |
 
 // DC bus (controller) undervoltage fault recovery mode
-	MIN_VM_MODE_LATCHED |
-//	MIN_VM_MODE_AUTO_CLEAR |
+//	MIN_VM_MODE_LATCHED |
+	MIN_VM_MODE_AUTO_CLEAR |
 
 // Controller over voltage fault threshold
-//	MAX_VM_MOTOR_NO_LIMIT |
-	MAX_VM_MOTOR_18_V |
+	MAX_VM_MOTOR_NO_LIMIT |
 //	MAX_VM_MOTOR_18_V |
 //	MAX_VM_MOTOR_30_V |
 //	MAX_VM_MOTOR_34_V |
 
 // DC bus (controller) overvoltage fault recovery mode
-	MAX_VM_MODE_LATCHED |
-//	MAX_VM_MODE_AUTO_CLEAR |
+//	MAX_VM_MODE_LATCHED |
+	MAX_VM_MODE_AUTO_CLEAR |
 
 // Number of automatic retry attempts
 //	AUTO_RETRY_TIMES_NO_LIMIT |
@@ -690,7 +764,9 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 // 7.1.9 REF_PROFILES1 (0x94)
 // ==========================================
 static const uint32_t REG_REF_PROFILES1_DATA =
-	REF_PROFILE_CONFIG_LINEAR |
+//	REF_PROFILE_CONFIG_LINEAR |
+	REF_PROFILE_CONFIG_REFERENCE |
+
 	(0x0 << DUTY_ON1_BASE) |
 	(0x0 << DUTY_OFF1_BASE) |
 	(0x0 << DUTY_CLAMP1_BASE) |
@@ -789,8 +865,8 @@ static const uint32_t REG_INT_ALGO_1_DATA =
 //	ISD_TIMEOUT_2000_MS |
 
 // Auto handoff minimum BEMF
-//	AUTO_HANDOFF_MIN_BEMF_0_MV |
-	AUTO_HANDOFF_MIN_BEMF_50_MV |
+	AUTO_HANDOFF_MIN_BEMF_0_MV |
+//	AUTO_HANDOFF_MIN_BEMF_50_MV |
 //	AUTO_HANDOFF_MIN_BEMF_100_MV |
 //	AUTO_HANDOFF_MIN_BEMF_250_MV |
 //	AUTO_HANDOFF_MIN_BEMF_500_MV |
@@ -805,14 +881,14 @@ static const uint32_t REG_INT_ALGO_1_DATA =
 //	BRAKE_CURRENT_PERSIST_500_MS |
 
 // Reverse drive open loop deceleration
-	REV_DRV_OPEN_LOOP_DEC_50_PER;
+//	REV_DRV_OPEN_LOOP_DEC_50_PER;
 //	REV_DRV_OPEN_LOOP_DEC_60_PER |
 //	REV_DRV_OPEN_LOOP_DEC_70_PER |
 //	REV_DRV_OPEN_LOOP_DEC_80_PER |
 //	REV_DRV_OPEN_LOOP_DEC_90_PER |
 //	REV_DRV_OPEN_LOOP_DEC_100_PER |
 //	REV_DRV_OPEN_LOOP_DEC_125_PER |
-//	REV_DRV_OPEN_LOOP_DEC_150_PER;
+	REV_DRV_OPEN_LOOP_DEC_150_PER;
 
 
 // ==========================================
@@ -835,12 +911,12 @@ static const uint32_t REG_INT_ALGO_2_DATA =
 //	CL_SLOW_ACC_2_HZ_S |
 //	CL_SLOW_ACC_3_HZ_S |
 //	CL_SLOW_ACC_5_HZ_S |
-	CL_SLOW_ACC_10_HZ_S |
+//	CL_SLOW_ACC_10_HZ_S |
 //	CL_SLOW_ACC_20_HZ_S |
 //	CL_SLOW_ACC_30_HZ_S |
 //	CL_SLOW_ACC_40_HZ_S |
 //	CL_SLOW_ACC_50_HZ_S |
-//	CL_SLOW_ACC_100_HZ_S |
+	CL_SLOW_ACC_100_HZ_S |
 //	CL_SLOW_ACC_200_HZ_S |
 //	CL_SLOW_ACC_500_HZ_S |
 //	CL_SLOW_ACC_750_HZ_S |
@@ -850,12 +926,12 @@ static const uint32_t REG_INT_ALGO_2_DATA =
 // Active brake bus current slew rate
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_10_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_50_A_S |
-	ACTIVE_BRAKE_BUS_CURRENT_SLEW_100_A_S |
+//	ACTIVE_BRAKE_BUS_CURRENT_SLEW_100_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_250_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_500_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_1000_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_5000_A_S |
-//	ACTIVE_BRAKE_BUS_CURRENT_SLEW_NO_LIMIT |
+	ACTIVE_BRAKE_BUS_CURRENT_SLEW_NO_LIMIT |
 
 // ISD BEMF filter enable
 //	ISD_BEMF_FILT_DIS |
@@ -952,9 +1028,9 @@ static const uint32_t REG_PIN_CONFIG_DATA =
 //	BRAKE_INPUT_OVERRIDE_NO_BRAKE |
 
 // Speed mode
-//	SPEED_MODE_ANALOG |
-	SPEED_MODE_PWM;
-//	SPEED_MODE_I2C |
+//	SPEED_MODE_ANALOG;
+//	SPEED_MODE_PWM;
+	SPEED_MODE_I2C;
 //	SPEED_MODE_FREQ;
 
 
@@ -973,7 +1049,7 @@ static const uint32_t REG_DEVICE_CONFIG1_DATA =
 //	PWM_DITHER_MODE_RANDOM |
 
 // I2C target address
-	(0x60 << I2C_TARGET_ADDR_BASE) |
+	(0x02 << I2C_TARGET_ADDR_BASE) |
 
 // EEPROM lock key
 	(0x0 << EEPROM_LOCK_KEY_BASE) |
@@ -1073,8 +1149,8 @@ static const uint32_t REG_PERI_CONFIG1_DATA =
 
 // Abnormal BEMF persistent time
 //	ABNORMAL_BEMF_PERSISTENT_2_CYCLE |
-	ABNORMAL_BEMF_PERSISTENT_500_MS |
-//	ABNORMAL_BEMF_PERSISTENT_1000_MS |
+//	ABNORMAL_BEMF_PERSISTENT_500_MS |
+	ABNORMAL_BEMF_PERSISTENT_1000_MS |
 //	ABNORMAL_BEMF_PERSISTENT_2000_MS |
 
 // Flux weakening reference
@@ -1099,8 +1175,8 @@ static const uint32_t REG_PERI_CONFIG1_DATA =
 //	DIR_INPUT_CCW |
 
 // Direction change mode
-	DIR_CHANGE_MODE_STOP |
-//	DIR_CHANGE_MODE_REVERSE_DRIVE |
+//	DIR_CHANGE_MODE_STOP |
+	DIR_CHANGE_MODE_REVERSE_DRIVE |
 
 // Speed limit enable
 	SPEED_LIMIT_DIS |
@@ -1109,10 +1185,10 @@ static const uint32_t REG_PERI_CONFIG1_DATA =
 // Active brake speed delta limit entry
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_NOT_APPLI |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_5_PER |
-	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_10_PER |
+//	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_10_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_15_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_20_PER |
-//	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_25_PER |
+	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_25_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_30_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_35_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_40_PER |
@@ -1162,12 +1238,12 @@ static const uint32_t REG_GD_CONFIG1_DATA =
 	SLEW_RATE_200_V_US |
 
 // Overvoltage level
-//	OVP_SEL_34_V |
-	OVP_SEL_22_V |
+	OVP_SEL_34_V |
+//	OVP_SEL_22_V |
 
 // Overvoltage protection enable
-//	OVP_DIS |
-	OVP_EN |
+	OVP_DIS |
+//	OVP_EN |
 
 // Overtemperature warning reporting
 //	OTW_REP_DIS |
@@ -1175,18 +1251,18 @@ static const uint32_t REG_GD_CONFIG1_DATA =
 
 // OCP deglitch time
 //	OCP_DEG_0P2_US |
-	OCP_DEG_0P6_US |
+//	OCP_DEG_0P6_US |
 //	OCP_DEG_1P2_US |
-//	OCP_DEG_1P6_US |
+	OCP_DEG_1P6_US |
 
 // OCP level
 	OCP_LVL_24_A |
 //	OCP_LVL_16_A |
 
 // OCP fault mode
-	OCP_MODE_LATCH |
+//	OCP_MODE_LATCH |
 //	OCP_MODE_RETRY |
-//	OCP_MODE_NOT_APPLI_2 |
+	OCP_MODE_NOT_APPLI_2 |
 //	OCP_MODE_NOT_APPLI_3 |
 
 // Current sense amplifier gain
@@ -1323,28 +1399,28 @@ static const uint32_t REG_ALGO_DEBUG2_DATA =
 	(0x0 << FORCE_VQ_CURRENT_LOOP_DIS_BASE) |
 
 // MPET command
-//	(0x0 << MPET_CMD_BASE) |
-	MPET_CMD|
+	(0x0 << MPET_CMD_BASE) |
+//	MPET_CMD|
 
 // MPET resistance measurement
-//	(0x0 << MPET_R_BASE) |
-	MPET_R |
+	(0x0 << MPET_R_BASE) |
+//	MPET_R |
 
 // MPET inductance measurement
-//	(0x0 << MPET_L_BASE) |
-	MPET_L |
+	(0x0 << MPET_L_BASE) |
+//	MPET_L |
 
 // MPET BEMF constant measurement
-//	(0x0 << MPET_KE_BASE) |
-	MPET_KE |
+	(0x0 << MPET_KE_BASE) |
+//	MPET_KE |
 
 // MPET mechanical parameter measurement
-//	(0x0 << MPET_MECH_BASE) |
-	MPET_MECH |
+	(0x0 << MPET_MECH_BASE) |
+//	MPET_MECH |
 
 // MPET write measured parameters to shadow
-//	(0x0 << MPET_WRITE_SHADOW_BASE);
-	MPET_WRITE_SHADOW;
+	(0x0 << MPET_WRITE_SHADOW_BASE);
+//	MPET_WRITE_SHADOW;
 
 
 // ============================================================================
@@ -1413,8 +1489,14 @@ static const uint32_t REG_EEPROM_SECURITY_DATA =
 	(0x0 << USER_EEPROM_KEY_BASE);
 // @formatter:on
 
-void MCF8316C_Read_Faults(MCF8316C_FaultStatus_t *faults) {
+uint8_t mcf_i2c_addr_8bit = MCF8316C_I2C_ADDR_WRITE; // 초기값
 
+void MCF8316C_Read_Faults(MCF8316C_FaultStatus_t *faults) {
+	if (faults == NULL)
+		return;
+	faults->gate_driver_fault = MCF8316C_ReadReg32(
+	REG_GATE_DRIVER_FAULT_STATUS);
+	faults->controller_fault = MCF8316C_ReadReg32(REG_CONTROLLER_FAULT_STATUS);
 }
 
 void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
@@ -1424,29 +1506,13 @@ void MCF8316C_WriteReg32(uint32_t reg_addr, uint32_t data) {
 	tx_buffer[0] = (ctrl_word >> 16) & 0xFF;
 	tx_buffer[1] = (ctrl_word >> 8) & 0xFF;
 	tx_buffer[2] = ctrl_word & 0xFF;
-
 	tx_buffer[3] = data & 0xFF;
 	tx_buffer[4] = (data >> 8) & 0xFF;
 	tx_buffer[5] = (data >> 16) & 0xFF;
 	tx_buffer[6] = (data >> 24) & 0xFF;
 
-	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, tx_buffer, 7,
-			100);
-}
-
-uint8_t MCF8316C_WriteAndVerifyReg32(uint32_t reg_addr, uint32_t data) {
-	uint8_t retry = 3;
-	uint32_t read_data = 0;
-	while (retry > 0) {
-		MCF8316C_WriteReg32(reg_addr, data);
-		HAL_Delay(10);
-		read_data = MCF8316C_ReadReg32(reg_addr);
-		if (read_data == data)
-			return 1;
-		retry--;
-		HAL_Delay(10);
-	}
-	return 0;
+	// 매크로 대신 mcf_i2c_addr_8bit 변수 사용
+	HAL_I2C_Master_Transmit(MCF_I2C, mcf_i2c_addr_8bit, tx_buffer, 7, 100);
 }
 
 uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
@@ -1458,31 +1524,15 @@ uint32_t MCF8316C_ReadReg32(uint32_t reg_addr) {
 	ctrl_buffer[1] = (ctrl_word >> 8) & 0xFF;
 	ctrl_buffer[2] = ctrl_word & 0xFF;
 
-	HAL_I2C_Master_Transmit(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, ctrl_buffer, 3,
-			100);
-	HAL_I2C_Master_Receive(MCF_I2C, MCF8316C_I2C_ADDR_READ, rx_buffer, 4, 100);
+	// 매크로 대신 mcf_i2c_addr_8bit 변수 사용
+	HAL_I2C_Master_Transmit(MCF_I2C, mcf_i2c_addr_8bit, ctrl_buffer, 3, 100);
+	HAL_I2C_Master_Receive(MCF_I2C, mcf_i2c_addr_8bit, rx_buffer, 4, 100);
 
 	return ((uint32_t) rx_buffer[3] << 24) | ((uint32_t) rx_buffer[2] << 16)
 			| ((uint32_t) rx_buffer[1] << 8) | rx_buffer[0];
 }
 
-uint8_t MCF8316C_Check_Connection(void) {
-	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100)
-			== HAL_OK)
-		return 1;
-	return 0;
-}
-
-void MCF8316C_Clear_Faults(void) {
-
-}
-
-void MCF8316C_Set_Speed(float speed_percent) {
-
-}
-
 void MCF8316C_Config_Manual(void) {
-	// Shadow Register에 모든 초기 설정값 기록
 	MCF8316C_WriteReg32(REG_ISD_CONFIG, REG_ISD_CONFIG_DATA);
 	MCF8316C_WriteReg32(REG_REV_DRIVE_CONFIG, REG_REV_DRIVE_CONFIG_DATA);
 	MCF8316C_WriteReg32(REG_MOTOR_STARTUP1, REG_MOTOR_STARTUP1_DATA);
@@ -1502,45 +1552,125 @@ void MCF8316C_Config_Manual(void) {
 	MCF8316C_WriteReg32(REG_INT_ALGO_1, REG_INT_ALGO_1_DATA);
 	MCF8316C_WriteReg32(REG_INT_ALGO_2, REG_INT_ALGO_2_DATA);
 	MCF8316C_WriteReg32(REG_PIN_CONFIG, REG_PIN_CONFIG_DATA);
-	MCF8316C_WriteReg32(REG_DEVICE_CONFIG1, REG_DEVICE_CONFIG1_DATA);
+
+	// ==============================================================
+	// 핵심 버그 수정: DEVICE_CONFIG1을 쓸 때 현재 I2C 주소를 무조건 유지시킴
+	// ==============================================================
+	uint32_t dev_cfg1 = REG_DEVICE_CONFIG1_DATA;
+	dev_cfg1 &= ~(0x7F << I2C_TARGET_ADDR_BASE);               // 데이터에 적힌 주소값 삭제
+	dev_cfg1 |= ((mcf_i2c_addr_8bit >> 1) << I2C_TARGET_ADDR_BASE); // 스캔된 실제 7-bit 주소 강제 삽입
+	MCF8316C_WriteReg32(REG_DEVICE_CONFIG1, dev_cfg1);
+
 	MCF8316C_WriteReg32(REG_DEVICE_CONFIG2, REG_DEVICE_CONFIG2_DATA);
 	MCF8316C_WriteReg32(REG_PERI_CONFIG1, REG_PERI_CONFIG1_DATA);
 	MCF8316C_WriteReg32(REG_GD_CONFIG1, REG_GD_CONFIG1_DATA);
 	MCF8316C_WriteReg32(REG_GD_CONFIG2, REG_GD_CONFIG2_DATA);
 }
 
+uint8_t MCF8316C_Check_Connection(void) {
+	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 100)
+			== HAL_OK)
+		return 1;
+	return 0;
+}
+
+void MCF8316C_Emergency_Recovery(void) {
+	// 구현 필요 시 작성
+}
+
 void MCF8316C_Config_MPET(void) {
-	// CLOSED_LOOP 2,3,4 레지스터의 SELF_MEASUREMENT 비트가 이미
-	// 매크로(DATA)에 포함되어 있으므로 Manual 설정 함수를 그대로 호출하면 준비 완료됩니다.
+	// 매크로상에 MPET 측정을 위한 플래그가 포함되어 있으므로 Manual Config 호출
 	MCF8316C_Config_Manual();
 }
 
 void MCF8316C_Start_MPET(void) {
-	// ALGO_DEBUG2(0xEE) 레지스터를 통해 MPET 측정 항목 모두 켜기 및 실행 트리거
 	uint32_t algo_debug2_val = REG_ALGO_DEBUG2_DATA;
-
-	// MPET_CMD(시작) + 저항(R) + 인덕턴스(L) + 역기전력(KE) + 기계상수(MECH) + Shadow Write 옵션 활성화
-	algo_debug2_val |= MPET_CMD | MPET_R | MPET_L | MPET_KE | MPET_MECH | MPET_WRITE_SHADOW;
-
 	MCF8316C_WriteReg32(REG_ALGO_DEBUG2, algo_debug2_val);
 }
 
 void MCF8316C_Read_MPET_Results(MCF8316C_MotorParams_t *params) {
-	if(params == NULL) return;
+	if (params == NULL)
+		return;
 
-	// 1. 모터 R, L, Ke 파라미터 읽기 (REG_MTR_PARAMS: 0x00E6)
 	uint32_t mtr_params = MCF8316C_ReadReg32(REG_MTR_PARAMS);
 	params->resistance_hex = (mtr_params >> 24) & 0xFF;
 	params->bemf_const_hex = (mtr_params >> 16) & 0xFF;
 	params->inductance_hex = (mtr_params >> 8) & 0xFF;
 
-	// 2. 전류 제어 PI 게인 읽기 (REG_CURRENT_PI: 0x00F0)
 	uint32_t curr_pi = MCF8316C_ReadReg32(REG_CURRENT_PI);
 	params->curr_loop_ki = (curr_pi >> 16) & 0xFFFF;
 	params->curr_loop_kp = curr_pi & 0xFFFF;
 
-	// 3. 속도 제어 PI 게인 읽기 (REG_SPEED_PI: 0x00F2)
 	uint32_t spd_pi = MCF8316C_ReadReg32(REG_SPEED_PI);
 	params->spd_loop_ki = (spd_pi >> 16) & 0xFFFF;
 	params->spd_loop_kp = spd_pi & 0xFFFF;
+}
+
+void MCF8316C_Clear_Faults(void) {
+	uint32_t val = MCF8316C_ReadReg32(REG_ALGO_CTRL1);
+	// 29번 비트: CLR_FLT, 28번 비트: CLR_FLT_RETRY_COUNT
+	val |= (1 << 29) | (1 << 28);
+	MCF8316C_WriteReg32(REG_ALGO_CTRL1, val);
+}
+
+extern TIM_HandleTypeDef htim8;
+
+void MCF8316C_Set_Speed(float speed_percent) {
+	if (speed_percent < 0.0f)
+		speed_percent = 0.0f;
+	if (speed_percent > 100.0f)
+		speed_percent = 100.0f;
+
+	// MCF8316C의 내부 디지털 속도 지령은 15-bit 해상도를 사용합니다. (0 ~ 32767)
+	// 100% = 32767
+	uint32_t speed_cmd = (uint32_t) ((speed_percent / 100.0f) * 32767.0f);
+
+	// 1. ALGO_DEBUG1 (0xEC) 레지스터 읽기
+	uint32_t algo_debug1 = MCF8316C_ReadReg32(REG_ALGO_DEBUG1);
+
+	// 2. 기존 속도 지령 비트(30:16) 및 오버라이드 비트(31) 마스킹(초기화)
+	algo_debug1 &= ~((0x7FFF << DIGITAL_SPEED_CTRL_BASE)
+			| (1UL << OVERRIDE_BASE));
+
+	// 3. I2C 속도 오버라이드 활성화 및 새로운 15-bit 속도 지령 삽입
+	algo_debug1 |= OVERRIDE_DIGITAL_SPEED_CTRL;           // Bit 31 Set
+	algo_debug1 |= (speed_cmd << DIGITAL_SPEED_CTRL_BASE); // Bit 30:16 Set
+
+	// 4. 레지스터 업데이트
+	MCF8316C_WriteReg32(REG_ALGO_DEBUG1, algo_debug1);
+}
+
+void MCF8316C_Run_MPET(void) {
+	uint32_t v = REG_ALGO_DEBUG2_DATA;
+	v |= MPET_CMD | MPET_R | MPET_L | MPET_KE | MPET_WRITE_SHADOW;
+	MCF8316C_WriteReg32(REG_ALGO_DEBUG2, v);
+}
+
+
+void MCF8316C_Brake(uint8_t on) {
+	uint32_t v = MCF8316C_ReadReg32(REG_PIN_CONFIG);
+	v &= ~(0x3 << BRAKE_INPUT_BASE);
+	v |= on ? BRAKE_INPUT_OVERRIDE_BRAKE : BRAKE_INPUT_PIN;
+	MCF8316C_WriteReg32(REG_PIN_CONFIG, v);
+}
+
+void MCF8316C_SetDir(uint8_t ccw) {
+	uint32_t v = MCF8316C_ReadReg32(REG_PERI_CONFIG1);
+	v &= ~(0x3 << DIR_INPUT_BASE);
+	v |= ccw ? DIR_INPUT_CCW : DIR_INPUT_CW;
+	MCF8316C_WriteReg32(REG_PERI_CONFIG1, v);
+}
+
+uint8_t MCF8316C_FindAddress(void) {
+	// 1) 기본 주소(0x02)를 먼저 확인 — 같은 버스의 다른 디바이스 오인 방지
+	if (HAL_I2C_IsDeviceReady(MCF_I2C, MCF8316C_I2C_ADDR_WRITE, 3, 10) == HAL_OK)
+		return MCF8316C_I2C_ADDR_WRITE;
+
+	// 2) 못 찾으면 전체 스캔 (주소가 변경된 경우 대비)
+	for (uint8_t i = 1; i < 128; i++) {
+		uint8_t addr_8bit = i << 1;
+		if (HAL_I2C_IsDeviceReady(MCF_I2C, addr_8bit, 3, 10) == HAL_OK)
+			return addr_8bit;
+	}
+	return 0;
 }

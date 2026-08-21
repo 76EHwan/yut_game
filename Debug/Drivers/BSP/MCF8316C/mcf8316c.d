@@ -33,7 +33,7 @@ Drivers/BSP/MCF8316C/mcf8316c.o: ../Drivers/BSP/MCF8316C/mcf8316c.c \
  ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi_ex.h \
  ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim.h \
  ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h ../Inc/i2c.h \
- ../Inc/main.h
+ ../Inc/main.h ../Inc/tim.h
 ../Drivers/BSP/MCF8316C/mcf8316c.h:
 ../Inc/main.h:
 ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h:
@@ -71,3 +71,4 @@ Drivers/BSP/MCF8316C/mcf8316c.o: ../Drivers/BSP/MCF8316C/mcf8316c.c \
 ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h:
 ../Inc/i2c.h:
 ../Inc/main.h:
+../Inc/tim.h:
