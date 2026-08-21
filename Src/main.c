@@ -35,14 +35,15 @@
 #define FLIP_REVERSE        1   // 역구동 반전   (ΔL = 2Jω, 영속도 구간 존재)
 
 #define FLIP_MODE           FLIP_BRAKE   // ← 0 / 1 로 전환
+//#define FLIP_MODE           FLIP_REVERSE   // ← 0 / 1 로 전환
 
-#define SPINUP_START        30.0f   // 시동 지령 (핸드오프 임계 10%보다 위)
-#define SPINUP_TARGET       95.0f   // 목표 지령
+#define SPINUP_START        20.0f   // 시동 지령 (핸드오프 임계 10%보다 위)
+#define SPINUP_TARGET       55.0f   // 목표 지령
 #define RAMP_STEP           5.0f    // 램프 1스텝
 #define RAMP_PERIOD_MS      200     // 램프 주기
 #define HANDOFF_WAIT_MS     1000    // 시동 후 클로즈드 루프 안착 대기
-#define HOLD_MS             500    // 목표 도달 후 유지 시간
-#define POST_FLIP_MS        3000    // 점프 후 자이로 관측 시간
+#define HOLD_MS             1000    // 목표 도달 후 유지 시간
+#define POST_FLIP_MS        1000    // 점프 후 자이로 관측 시간
 
 #define LOOP_PERIOD_MS      20      // 메인 루프 주기 (점프 순간 분해능)
 #define LCD_PERIOD_MS       200     // LCD 갱신 주기 (SPI가 느려서 분리)
@@ -174,7 +175,10 @@ int main(void) {
 	HAL_Delay(100);
 
 	MCF8316C_Config_Manual();
-	HAL_Delay(100);
+	uint32_t fc1_check = MCF8316C_ReadReg32(REG_FAULT_CONFIG1);
+	sprintf(lcd_buf, "FC1 %08lX", fc1_check);
+	LCD_ShowString(2, 58, ST7735Ctx.Width, 16, 16, (uint8_t*) lcd_buf);
+	HAL_Delay(1000);
 
 	if (MCF8316C_ReadReg32(REG_DEVICE_CONFIG1) == 0) {
 		sprintf(lcd_buf, "I2C READ FAIL!");

@@ -108,10 +108,10 @@ static const uint32_t REG_ISD_CONFIG_DATA =
 //	STAT_DETECT_THR_1500_MV |
 
 // Speed threshold used to transition to open loop during reverse drive
-	REV_DRV_HANDOFF_THR_2P5_PER |
+//	REV_DRV_HANDOFF_THR_2P5_PER |
 //	REV_DRV_HANDOFF_THR_5_PER |
 //	REV_DRV_HANDOFF_THR_7P5_PER |
-//	REV_DRV_HANDOFF_THR_10_PER |
+	REV_DRV_HANDOFF_THR_10_PER |
 //	REV_DRV_HANDOFF_THR_12P5_PER |
 //	REV_DRV_HANDOFF_THR_15_PER |
 //	REV_DRV_HANDOFF_THR_20_PER |
@@ -301,12 +301,12 @@ static const uint32_t REG_MOTOR_STARTUP1_DATA =
 	IQ_RAMP_DOWN_EN |
 
 // Enable active braking
-	ACTIVE_BRAKE_DIS |
-//	ACTIVE_BRAKE_EN |
+//	ACTIVE_BRAKE_DIS |
+	ACTIVE_BRAKE_EN |
 
 // Choose between forward and reverse drive setting for reverse drive
-	REV_DRV_CONFIG_FORWARD;
-//	REV_DRV_CONFIG_REVERSE;
+//	REV_DRV_CONFIG_FORWARD;
+	REV_DRV_CONFIG_REVERSE;
 
 
 // ==========================================
@@ -320,7 +320,7 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ILIMIT_1_A |
 //	OL_ILIMIT_1P5_A |
 //	OL_ILIMIT_2_A |
-	OL_ILIMIT_2P5_A |
+//	OL_ILIMIT_2P5_A |
 //	OL_ILIMIT_3_A |
 //	OL_ILIMIT_3P5_A |
 //	OL_ILIMIT_4_A |
@@ -329,7 +329,7 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ILIMIT_5P5_A |
 //	OL_ILIMIT_6_A |
 //	OL_ILIMIT_7_A |
-//	OL_ILIMIT_8_A |
+	OL_ILIMIT_8_A |
 
 // Open loop acceleration coefficient A1
 //	OL_ACC_A1_0P1_HZ_S |
@@ -356,8 +356,8 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 //	OL_ACC_A2_2P5_HZ_S2 |
 //	OL_ACC_A2_5_HZ_S2 |
 //	OL_ACC_A2_10_HZ_S2 |
-	OL_ACC_A2_25_HZ_S2 |
-//	OL_ACC_A2_50_HZ_S2 |
+//	OL_ACC_A2_25_HZ_S2 |
+	OL_ACC_A2_50_HZ_S2 |
 //	OL_ACC_A2_75_HZ_S2 |
 //	OL_ACC_A2_100_HZ_S2 |
 //	OL_ACC_A2_250_HZ_S2 |
@@ -373,8 +373,8 @@ static const uint32_t REG_MOTOR_STARTUP2_DATA =
 
 // Open to closed loop handoff threshold (% of MAX_SPEED)
 //	OPN_CL_HANDOFF_THR_1_PER |
-//	OPN_CL_HANDOFF_THR_5_PER |
-	OPN_CL_HANDOFF_THR_10_PER |
+	OPN_CL_HANDOFF_THR_5_PER |
+//	OPN_CL_HANDOFF_THR_10_PER |
 //	OPN_CL_HANDOFF_THR_20_PER |
 //	OPN_CL_HANDOFF_THR_30_PER |
 //	OPN_CL_HANDOFF_THR_40_PER |
@@ -427,7 +427,7 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 //	CL_ACC_200 |
 //	CL_ACC_300 |
 //	CL_ACC_400 |
-	CL_ACC_500 |
+//	CL_ACC_500 |
 //	CL_ACC_600 |
 //	CL_ACC_700 |
 //	CL_ACC_800 |
@@ -444,8 +444,7 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 //	CL_ACC_50000 |
 //	CL_ACC_60000 |
 //	CL_ACC_70000 |
-
-//	CL_ACC_NO_LIMIT |
+	CL_ACC_NO_LIMIT |
 
 // Closed loop deceleration
 //	CL_DEC_0P5 |
@@ -462,7 +461,7 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 //	CL_DEC_200 |
 //	CL_DEC_300 |
 //	CL_DEC_400 |
-	CL_DEC_500 |
+//	CL_DEC_500 |
 //	CL_DEC_600 |
 //	CL_DEC_700 |
 //	CL_DEC_800 |
@@ -479,7 +478,7 @@ static const uint32_t REG_CLOSED_LOOP1_DATA =
 //	CL_DEC_50000 |
 //	CL_DEC_60000 |
 //	CL_DEC_70000 |
-//	CL_DEC_NO_LIMIT |
+	CL_DEC_NO_LIMIT |
 
 // PWM output frequency
 //	PWM_FREQ_OUT_10_KHZ |
@@ -536,15 +535,15 @@ static const uint32_t REG_CLOSED_LOOP2_DATA =
 
 // Brake time during motor stop
 //	MTR_STOP_BRK_TIME_1_MS |
-//	MTR_STOP_BRK_TIME_50_MS |
+	MTR_STOP_BRK_TIME_50_MS |
 //	MTR_STOP_BRK_TIME_100_MS |
-	MTR_STOP_BRK_TIME_1000_MS |
+//	MTR_STOP_BRK_TIME_1000_MS |
 //	MTR_STOP_BRK_TIME_15000_MS |
 
 // Speed threshold for active spin down
-//	ACT_SPIN_THR_100_PER |
+	ACT_SPIN_THR_100_PER |
 //	ACT_SPIN_THR_50_PER |
-	ACT_SPIN_THR_10_PER |
+//	ACT_SPIN_THR_10_PER |
 //	ACT_SPIN_THR_2P5_PER |
 
 // Speed threshold for BRAKE pin and Motor stop
@@ -565,19 +564,35 @@ static const uint32_t REG_CLOSED_LOOP2_DATA =
 // ==========================================
 // 7.1.7 CLOSED_LOOP3 (0x8C)
 // ==========================================
+#define CURR_LOOP_KP_MSB2	0x2
+#define CURR_LOOP_KP_LSB8	0x2B
+#define CURR_LOOP_KP_VALUE	(CURR_LOOP_KP_MSB2 << 8 | CURR_LOOP_KP_MSB2)
+
+#define CURR_LOOP_KI_MSB2	0x2
+#define CURR_LOOP_KI_LSB8	0x7C
+#define CURR_LOOP_KI_VALUE	(CURR_LOOP_KI_MSB2 << 8 | CURR_LOOP_KI_MSB2)
+
+#define SPD_LOOP_KP_MSB2	0x1
+#define SPD_LOOP_KP_LSB8	0x06
+#define SPD_LOOP_KP_VALUE	(SPD_LOOP_KP_MSB2 << 8 | SPD_LOOP_KP_MSB2)
+
+#define SPD_LOOP_KI_MSB2	0x2
+#define SPD_LOOP_KI_LSB8	0x36
+#define SPD_LOOP_KI_VALUE	(SPD_LOOP_KI_MSB2 << 8 | SPD_LOOP_KI_MSB2)
+
 static const uint32_t REG_CLOSED_LOOP3_DATA =
 // 8-bit values for motor BEMF Constant (MPET 자동 측정)
 //	MOTOR_BEMF_CONST_SELF_MEASUREMENT |
 		MOTOR_BEMF_CONST_9P2_MV_HZ |
 
 // 10-bit value for current Iq and Id loop Kp (MPET 자동 계산)
-	(0x3ab  << CURR_LOOP_KP_BASE) |
+	(CURR_LOOP_KP_VALUE  << CURR_LOOP_KP_BASE) |
 
 // 10-bit value for current Iq and Id loop Ki (MPET 자동 계산)
-	(0x27c  << CURR_LOOP_KI_BASE) |
+	(CURR_LOOP_KI_VALUE  << CURR_LOOP_KI_BASE) |
 
 // 3 MSB bits for speed loop Kp (MPET 자동 계산)
-	(0x4 << SPD_LOOP_KP_MSB_BASE);
+	((SPD_LOOP_KP_VALUE >> 7) << SPD_LOOP_KP_MSB_BASE);
 
 
 // ==========================================
@@ -585,14 +600,14 @@ static const uint32_t REG_CLOSED_LOOP3_DATA =
 // ==========================================
 static const uint32_t REG_CLOSED_LOOP4_DATA =
 // 7 LSB bits for speed loop Kp (MPET 자동 계산)
-	(0x1b  << SPD_LOOP_KP_LSB_BASE) |
+	((SPD_LOOP_KP_VALUE & 0x7F)  << SPD_LOOP_KP_LSB_BASE) |
 
 // 10-bit value for speed loop Ki (MPET 자동 계산)
-	(0x21b   << SPD_LOOP_KI_BASE) |
+	(SPD_LOOP_KI_VALUE << SPD_LOOP_KI_BASE) |
 
 // Maximum motor electrical speed (Hz): {MAX_SPEED/6}
 // ex: 1000Hz -> (1000 * 6) = 6000
-	(4500 << MAX_SPEED_BASE);
+	(8000 << MAX_SPEED_BASE);
 
 
 // ==========================================
@@ -604,8 +619,8 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 //	ILIMIT_1P0_A |
 //	ILIMIT_2P0_A |
 //	ILIMIT_3P0_A |
-	ILIMIT_5P0_A |
-//	ILIMIT_8P0_A |
+//	ILIMIT_5P0_A |
+	ILIMIT_8P0_A |
 
 // Comparator based lock detection current threshold
 //	HW_LOCK_ILIMIT_1P0_A |
@@ -616,8 +631,8 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 // ADC based lock detection current threshold
 //	LOCK_ILIMIT_1P0_A |
 //	LOCK_ILIMIT_2P0_A |
-	LOCK_ILIMIT_4P0_A |
-//	LOCK_ILIMIT_8P0_A |
+//	LOCK_ILIMIT_4P0_A |
+	LOCK_ILIMIT_8P0_A |
 
 // Fault response type for EEPROM fault
 	EEP_FAULT_MODE_LATCHED |
@@ -626,20 +641,21 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 // Lock current limit mode
 //	LOCK_ILIMIT_MODE_LATCH_TRISTATE |
 //	LOCK_ILIMIT_MODE_LATCH_LS_BRAKE |
-	LOCK_ILIMIT_MODE_RETRY_TRISTATE |
+//	LOCK_ILIMIT_MODE_RETRY_TRISTATE |
+	LOCK_ILIMIT_MODE_RETRY_LS_BRAKE |
 //	LOCK_ILIMIT_MODE_REPORT_ONLY |
 //	LOCK_ILIMIT_MODE_DIS |
 
 // Lock current limit detection deglitch time
 //	LOCK_ILIMIT_DEG_NO_DEGLITCH |
 //	LOCK_ILIMIT_DEG_1_MS |
-	LOCK_ILIMIT_DEG_5_MS |
+//	LOCK_ILIMIT_DEG_5_MS |
 //	LOCK_ILIMIT_DEG_10_MS |
-//	LOCK_ILIMIT_DEG_1000_MS |
+	LOCK_ILIMIT_DEG_1000_MS |
 
 // Lock detection retry time
-//	LCK_RETRY_300_MS |
-	LCK_RETRY_1_S |
+	LCK_RETRY_300_MS |
+//	LCK_RETRY_1_S |
 //	LCK_RETRY_5_S |
 //	LCK_RETRY_14_S |
 
@@ -649,7 +665,8 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 
 // Motor lock mode
 //	MTR_LCK_MODE_LATCH_TRISTATE |
-	MTR_LCK_MODE_RETRY_TRISTATE |
+//	MTR_LCK_MODE_RETRY_TRISTATE |
+	MTR_LCK_MODE_RETRY_LS_BRAKE|
 //	MTR_LCK_MODE_REPORT_ONLY |
 //	MTR_LCK_MODE_DIS |
 
@@ -671,16 +688,16 @@ static const uint32_t REG_FAULT_CONFIG1_DATA =
 // ==========================================
 static const uint32_t REG_FAULT_CONFIG2_DATA =
 // Lock 1 (Abnormal Speed) Enable
-//	LOCK1_DIS |
-	LOCK1_EN |
+	LOCK1_DIS |
+//	LOCK1_EN |
 
 // Lock 2 (Abnormal BEMF) Enable
 	LOCK2_DIS |
 //	LOCK2_EN |
 
 // Lock 3 (No Motor) Enable
-//	LOCK3_DIS |
-	LOCK3_EN |
+	LOCK3_DIS |
+//	LOCK3_EN |
 
 // Abnormal speed lock threshold (% of MAX_SPEED)
 //	LOCK_ABN_SPEED_130_PER |
@@ -700,7 +717,8 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 
 // Hardware lock current limit mode
 //	HW_LOCK_ILIMIT_MODE_LATCH_TRISTATE |
-	HW_LOCK_ILIMIT_MODE_RETRY_TRIS |
+//	HW_LOCK_ILIMIT_MODE_RETRY_TRIS |
+	HW_LOCK_ILIMIT_MODE_RETRY_LS |
 //	HW_LOCK_ILIMIT_MODE_REPORT_ONLY |
 //	HW_LOCK_ILIMIT_MODE_DIS |
 
@@ -726,14 +744,14 @@ static const uint32_t REG_FAULT_CONFIG2_DATA =
 	MIN_VM_MODE_AUTO_CLEAR |
 
 // Controller over voltage fault threshold
-//	MAX_VM_MOTOR_NO_LIMIT |
-	MAX_VM_MOTOR_18_V |
+	MAX_VM_MOTOR_NO_LIMIT |
+//	MAX_VM_MOTOR_18_V |
 //	MAX_VM_MOTOR_30_V |
 //	MAX_VM_MOTOR_34_V |
 
 // DC bus (controller) overvoltage fault recovery mode
-	MAX_VM_MODE_LATCHED |
-//	MAX_VM_MODE_AUTO_CLEAR |
+//	MAX_VM_MODE_LATCHED |
+	MAX_VM_MODE_AUTO_CLEAR |
 
 // Number of automatic retry attempts
 //	AUTO_RETRY_TIMES_NO_LIMIT |
@@ -908,12 +926,12 @@ static const uint32_t REG_INT_ALGO_2_DATA =
 // Active brake bus current slew rate
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_10_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_50_A_S |
-	ACTIVE_BRAKE_BUS_CURRENT_SLEW_100_A_S |
+//	ACTIVE_BRAKE_BUS_CURRENT_SLEW_100_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_250_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_500_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_1000_A_S |
 //	ACTIVE_BRAKE_BUS_CURRENT_SLEW_5000_A_S |
-//	ACTIVE_BRAKE_BUS_CURRENT_SLEW_NO_LIMIT |
+	ACTIVE_BRAKE_BUS_CURRENT_SLEW_NO_LIMIT |
 
 // ISD BEMF filter enable
 //	ISD_BEMF_FILT_DIS |
@@ -1167,10 +1185,10 @@ static const uint32_t REG_PERI_CONFIG1_DATA =
 // Active brake speed delta limit entry
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_NOT_APPLI |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_5_PER |
-	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_10_PER |
+//	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_10_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_15_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_20_PER |
-//	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_25_PER |
+	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_25_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_30_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_35_PER |
 //	ACTIVE_BRAKE_SPEED_DELTA_ENTRY_40_PER |
@@ -1220,12 +1238,12 @@ static const uint32_t REG_GD_CONFIG1_DATA =
 	SLEW_RATE_200_V_US |
 
 // Overvoltage level
-//	OVP_SEL_34_V |
-	OVP_SEL_22_V |
+	OVP_SEL_34_V |
+//	OVP_SEL_22_V |
 
 // Overvoltage protection enable
-//	OVP_DIS |
-	OVP_EN |
+	OVP_DIS |
+//	OVP_EN |
 
 // Overtemperature warning reporting
 //	OTW_REP_DIS |
@@ -1233,18 +1251,18 @@ static const uint32_t REG_GD_CONFIG1_DATA =
 
 // OCP deglitch time
 //	OCP_DEG_0P2_US |
-	OCP_DEG_0P6_US |
+//	OCP_DEG_0P6_US |
 //	OCP_DEG_1P2_US |
-//	OCP_DEG_1P6_US |
+	OCP_DEG_1P6_US |
 
 // OCP level
 	OCP_LVL_24_A |
 //	OCP_LVL_16_A |
 
 // OCP fault mode
-	OCP_MODE_LATCH |
+//	OCP_MODE_LATCH |
 //	OCP_MODE_RETRY |
-//	OCP_MODE_NOT_APPLI_2 |
+	OCP_MODE_NOT_APPLI_2 |
 //	OCP_MODE_NOT_APPLI_3 |
 
 // Current sense amplifier gain

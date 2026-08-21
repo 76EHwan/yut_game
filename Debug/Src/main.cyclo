@@ -1,7 +1,7 @@
-../Src/main.c:68:6:ExitRun0Mode	1
-../Src/main.c:74:13:Brake_Pin_Set	1
-../Src/main.c:89:14:Gyro_ReadZ_dps	1
-../Src/main.c:96:13:Flip_Execute	1
-../Src/main.c:114:5:main	21
-../Src/main.c:331:6:SystemClock_Config	4
-../Src/main.c:380:6:Error_Handler	1
+../Src/main.c:69:6:ExitRun0Mode	1
+../Src/main.c:75:13:Brake_Pin_Set	1
+../Src/main.c:90:14:Gyro_ReadZ_dps	1
+../Src/main.c:97:13:Flip_Execute	1
+../Src/main.c:115:5:main	21
+../Src/main.c:335:6:SystemClock_Config	4
+../Src/main.c:384:6:Error_Handler	1
